@@ -5,6 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * 对象池的通用实现
+ * @author majikang
+ * @create 2019-11-05
+ */
 public final class ObjectPool<T> {
 	public static interface Factory<T> {
 		T newObject();

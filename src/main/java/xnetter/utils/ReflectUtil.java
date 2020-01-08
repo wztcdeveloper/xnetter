@@ -13,7 +13,12 @@ import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-public class ReflectUtil {
+/**
+ * 反射工具类
+ * @author majikang
+ * @create 2019-11-05
+ */
+public final class ReflectUtil {
 	
 	private ReflectUtil() {
 		

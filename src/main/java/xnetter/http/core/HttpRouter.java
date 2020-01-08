@@ -4,6 +4,7 @@ import io.netty.util.internal.StringUtil;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -36,7 +37,7 @@ public final class HttpRouter {
 	/**
 	 * HTTP/HTTPS请求的响应路径
 	 */
-	public class Path {
+	public static class Path {
 		// 路径的完整URL
 		public final String url;
 		// 路径的URL进行分割的数组，为了跟请求的URL进行比对
@@ -91,19 +92,34 @@ public final class HttpRouter {
 		}
 	}
 	
-	public class Context {
+	public static class ActionHolder {
 		public final String name;
 		public final Object action;
 		public final Map<String, Path> paths;
 		
-		public Context(String name, Object action) {
+		public ActionHolder(String name, Object action) {
 			this.name = name;
 			this.action = action;
 			this.paths = new HashMap<>();
 		}
 	}
+
+	public static class ActionContext {
+		public final String requestName;
+		public final HttpRouter.Path path;
+
+		public ActionContext(String requestName, HttpRouter.Path path) {
+			this.requestName = requestName;
+			this.path = path;
+		}
+
+		public Object execute(Object[] params)
+				throws InvocationTargetException, IllegalAccessException {
+			return path.method.invoke(path.action, params);
+		}
+	}
 	
-	private Map<String, Context> contexts = new HashMap<>();
+	private Map<String, ActionHolder> actions = new HashMap<>();
 	
 	public HttpRouter(String... actionPackages) throws ClassNotFoundException, IOException, 
 		InstantiationException, IllegalAccessException {
@@ -121,7 +137,7 @@ public final class HttpRouter {
 		logger.info("===== regist action end =====");
 	}
 
-	public Context getContext(String url) {
+	public ActionHolder getAction(String url) {
 		int index = url.indexOf("?");
 		if (index > 0) {
 			url = url.substring(0, index);
@@ -134,24 +150,24 @@ public final class HttpRouter {
 		}
 		
 		String actionName = RequestUtil.correctPath(url.substring(0, index));
-		if (!contexts.containsKey(actionName)) {
+		if (!actions.containsKey(actionName)) {
 			throw new RuntimeException(String.format("action doesn't exist for name: %s", actionName));
 		}
 		
-		return contexts.get(actionName);
+		return actions.get(actionName);
 	}
 	
-	public ActionProxy newAction(String url, Request.Type type) {
+	public ActionContext newAction(String url, Request.Type type) {
 		return newAction(url, type, true);
 	}
 	
 	/**
-	 * @param url WEB请求的路径
-	 * @param type WEB请求的方式
+	 * @param url HTTP请求的路径
+	 * @param type HTTP请求的方式
 	 * @param forcePath 是否强制检查路径
 	 * @return
 	 */
-	public ActionProxy newAction(String url, Request.Type type, boolean forcePath) {
+	public ActionContext newAction(String url, Request.Type type, boolean forcePath) {
 		int index = url.indexOf("?");
 		if (index > 0) {
 			url = url.substring(0, index);
@@ -169,11 +185,11 @@ public final class HttpRouter {
 			throw new RuntimeException(String.format("request url is wrong. url=%s, should like: user/login...", url));
 		}
 		
-		if (!contexts.containsKey(actionName)) {
+		if (!actions.containsKey(actionName)) {
 			throw new RuntimeException(String.format("action doesn't exist for name: %s", actionName));
 		}
-		
-		Context context = contexts.get(actionName);
+
+		ActionHolder context = actions.get(actionName);
 		Path path = getMatchPath(context, requestName);
 		if (forcePath && path == null) {
 			throw new RuntimeException(String.format("request doesn't exist for name: %s/%s", actionName, requestName));
@@ -185,18 +201,18 @@ public final class HttpRouter {
 					actionName, path.url, DumpUtil.toString(path.request.type()), actionName, requestName, type.toString()));
 		}
 		
-		return new ActionProxy(path, requestName);
+		return new ActionContext(requestName, path);
 	}
 
 	/**
 	 * 从所有Path里面找出跟请求URL匹配的路径
-	 * @param context
+	 * @param action
 	 * @param requstName
 	 * @return
 	 */
-	private Path getMatchPath(Context context, String requstName) {
+	private Path getMatchPath(ActionHolder action, String requstName) {
 		String[] needs = StringUtils.split(requstName, PATH_SEPARATOR);
-		for (Entry<String, Path> entry : context.paths.entrySet()) {
+		for (Entry<String, Path> entry : action.paths.entrySet()) {
 			if (requstName.equals(entry.getKey())) {
 				return entry.getValue();
 			}
@@ -230,28 +246,28 @@ public final class HttpRouter {
 			throw new RuntimeException(String.format("action name can't be empty."));
 		}
 		
-		if (contexts.containsKey(actionName)) {
+		if (actions.containsKey(actionName)) {
 			throw new RuntimeException(String.format("duplicate action name: %s", actionName));
 		}
 		
 		logger.info("regist action. name: {}, class: {}", actionName, clazz.toString());
-		
-		Context context = new Context(actionName, clazz.newInstance());
-		contexts.put(actionName, context);
+
+		ActionHolder holder = new ActionHolder(actionName, clazz.newInstance());
+		actions.put(actionName, holder);
 
 		for (Method method : clazz.getDeclaredMethods()) {
-			regist(context, method);
+			regist(holder, method);
 		}
 	}
 
 	/**
 	 * 注册Action上所有的响应函数
-	 * @param context
+	 * @param holder
 	 * @param method
 	 * @throws RuntimeException
 	 * @throws IOException
 	 */
-	private void regist(Context context, Method method) throws RuntimeException, IOException {
+	private void regist(ActionHolder holder, Method method) throws RuntimeException, IOException {
 		Request request = method.getAnnotation(Request.class);
 		if (request == null) {
 			return;
@@ -259,24 +275,24 @@ public final class HttpRouter {
 		
 		if (method.getModifiers() != Modifier.PUBLIC) {
 			throw new RuntimeException(String.format("request method must be public. action: %s, method: %s",
-					context.action.getClass().toString(), method.getName()));
+					holder.action.getClass().toString(), method.getName()));
 		}
 		
 		String requestName = RequestUtil.correctPath(request.name());
 		if (StringUtil.isNullOrEmpty(requestName)) {
 			throw new RuntimeException(String.format("request name can't be empty. action: %s, method: %s",
-					context.action.getClass().toString(), method.getName()));
+					holder.action.getClass().toString(), method.getName()));
 		}
 		
 		
-		if (context.paths.containsKey(requestName)) {
+		if (holder.paths.containsKey(requestName)) {
 			throw new RuntimeException(String.format("duplicate request name: %s. action: %s, method: %s",
-					requestName, context.action.getClass().toString(), method.getName()));
+					requestName, holder.action.getClass().toString(), method.getName()));
 		}
 		
 		logger.info("regist request. name: {}, method: {}", requestName, method.getName());
-		
-		context.paths.put(requestName, new Path(requestName, request, method, context.action));
+
+		holder.paths.put(requestName, new Path(requestName, request, method, holder.action));
 	}
 
 }

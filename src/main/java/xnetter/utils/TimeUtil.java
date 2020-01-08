@@ -4,6 +4,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 时间工具类
+ * @author majikang
+ * @create 2019-11-05
+ */
 public final class TimeUtil {
 
 	public static final String FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";

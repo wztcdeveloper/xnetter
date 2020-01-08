@@ -13,19 +13,38 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * 自动扫描包下面的Class
- *
+ * 类扫描工具类
+ * @author majikang
+ * @create 2019-11-05
  */
 public final class ClassScaner {
 	
 	private ClassScaner(){
 	}
-	
+
+	/**
+	 * 扫描包下面的所有类
+	 * @param packageName 包路径
+	 * @param recursive 是否递归扫描
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public static Set<Class<?>> scan(String packageName, boolean recursive) 
 			throws IOException, ClassNotFoundException {
 		return scan(packageName, null, recursive);
 	}
-	
+
+	/**
+	 * 扫描包下面的所有类
+	 * @param packageName 包路径
+	 * @param superClazz 可以指定某类的所有子类
+	 * @param recursive 是否递归扫描
+	 * @param recursive
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public static Set<Class<?>> scan(String packageName, Class<?> superClazz, boolean recursive) 
 			throws IOException, ClassNotFoundException {
 		String packageDirName = packageName.replace('.', '/');

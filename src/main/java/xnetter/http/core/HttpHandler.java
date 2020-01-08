@@ -19,6 +19,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import xnetter.http.core.annotation.Request;
 import xnetter.http.core.annotation.Response;
+import xnetter.http.core.HttpRouter.ActionContext;
+import xnetter.http.core.HttpRouter.ActionHolder;
 import xnetter.http.core.utils.HttpHeader;
 import xnetter.http.core.utils.ResponseUtil;
 import xnetter.http.data.decode.Decoder;
@@ -26,7 +28,6 @@ import xnetter.http.data.encode.Encoder;
 import xnetter.http.wsock.WSockAction;
 import xnetter.http.wsock.WSockHandler;
 import xnetter.utils.DumpUtil;
-
 /**
  * 将所有HTTP/HTTPS请求分发给相应的Action
  * @author majikang
@@ -84,20 +85,20 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest request) 
 			throws Exception {
 		Request.Type requestType = getType(request.method());
-		ActionProxy proxy = router.newAction(request.uri(), requestType);
+		ActionContext context = router.newAction(request.uri(), requestType);
 		
-		if (proxy == null) {
+		if (context == null) {
 			writeResponse(request, ResponseUtil.buildNotFound(request.uri()), ctx.channel(), true);
 			return;
 		} 
 		
-		Object[] params = new Encoder(request, proxy.path)
-			.encode(proxy.requestName, Decoder.decode(request));
+		Object[] params = new Encoder(request, context.path)
+			.encode(context.requestName, Decoder.decode(request));
 		logger.debug("params(count={})", params.length);
 		logger.debug(DumpUtil.dump("\t", params));
 		
-		Object result = proxy.execute(request, params);
-		Response response = proxy.path.getMethodAnn(Response.class);
+		Object result = context.execute(params);
+		Response response = context.path.getMethodAnn(Response.class);
 		writeResponse(request, ResponseUtil.build(result, response), ctx.channel(), false);
 	}
 
@@ -109,12 +110,12 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	 */
 	private void handleWebsocket(ChannelHandlerContext ctx, FullHttpRequest request) 
 			throws Exception {
-		HttpRouter.Context context = router.getContext(request.uri());
-		if (context == null || !(context.action instanceof WSockAction)) {
+		ActionHolder holder = router.getAction(request.uri());
+		if (holder == null || !(holder.action instanceof WSockAction)) {
 			throw new RuntimeException(String.format("wsock action doesn't exist for name: %s", request.uri()));
 		}
 		
-		String wsUrl = String.format("ws://0.0.0.0:%d/%s", port, context.name);
+		String wsUrl = String.format("ws://0.0.0.0:%d/%s", port, holder.name);
 		WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(wsUrl, null, false);
 		WebSocketServerHandshaker handshaker = factory.newHandshaker(request);
         if (handshaker == null) {
@@ -122,15 +123,15 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         } 
         
-    	WSockAction action = (WSockAction)context.action.getClass().newInstance();
+    	WSockAction action = (WSockAction)holder.action.getClass().newInstance();
     	Request.Type requestType = getType(request.method());
-		ActionProxy proxy = router.newAction(request.uri(), requestType, false);
-		if (proxy != null && proxy.path != null) {
-			Object[] params = new Encoder(request, proxy.path)
-				.encode(proxy.requestName, Decoder.decode(request));
+		ActionContext context = router.newAction(request.uri(), requestType, false);
+		if (context != null && context.path != null) {
+			Object[] params = new Encoder(request, context.path)
+				.encode(context.requestName, Decoder.decode(request));
     		logger.debug("params(count={})", params.length);
     		logger.debug(DumpUtil.dump("\t", params));
-    		proxy.path.method.invoke(action, params);
+			context.execute(params);
 		}
 
 		/**

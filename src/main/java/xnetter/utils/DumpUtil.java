@@ -10,6 +10,11 @@ import xnetter.http.type.TType;
 
 import com.alibaba.fastjson.JSONArray;
 
+/**
+ * 格式化工具类
+ * @author majikang
+ * @create 2019-11-05
+ */
 public final class DumpUtil {
 
 	private DumpUtil() {
