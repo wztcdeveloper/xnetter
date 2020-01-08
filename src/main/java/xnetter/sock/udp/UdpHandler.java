@@ -15,6 +15,7 @@ import io.netty.channel.socket.DatagramPacket;
 import xnetter.sock.core.Coder;
 import xnetter.sock.core.Handler;
 import xnetter.sock.core.Manager;
+import xnetter.sock.protocol.ProtocolUdpHandler;
 
 /**
  * UDP处理器, 每个Handler对应一个建立的连接
@@ -26,7 +27,7 @@ public abstract class UdpHandler extends Handler {
 	public static final Handler.Factory DEFAULT = new Handler.Factory() {
 		@Override
 		public Handler create(long sid, Manager manager) {
-			return new ProtocolHandler(sid, manager);
+			return new ProtocolUdpHandler(sid, manager);
 		}
 	};
 	

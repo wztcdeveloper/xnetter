@@ -1,9 +1,16 @@
-package xnetter.sock.udp;
+package xnetter.sock.protocol;
 
 import xnetter.sock.core.Dispatcher;
 import xnetter.sock.core.Manager;
 import xnetter.sock.protocol.Protocol;
+import xnetter.sock.udp.UdpClient;
+import xnetter.sock.udp.UdpHandler;
 
+/**
+ * 协议的UDP处理器
+ * @author majikang
+ * @create 2019-12-25
+ */
 public class ProtocolUdpHandler extends UdpHandler {
 
 	public ProtocolUdpHandler(long sid, Manager manager) {
