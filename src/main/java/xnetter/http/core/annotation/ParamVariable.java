@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * ParamVariable 从请求参数中获取变量
+ * ParamVariable 从请求参数和请求内容中获取变量
  * @author majikang
  * @create 2019-11-05
  */
@@ -16,6 +16,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ParamVariable {
-	
+
 	String name();
 }

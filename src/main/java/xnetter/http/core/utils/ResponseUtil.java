@@ -10,23 +10,20 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 
 /**
- * 响应处理工具类
+ * 对HTTP/HTTPS请求的响应处理工具
  * @author majikang
  * @create 2019-11-05
  */
 public final class ResponseUtil {
 
 	private ResponseUtil() {
-		
+
 	}
-	
-	private static String CONTENT_TYPE = "Content-Type";
-	private static String CONTENT_LENGTH = "Conteng-Length";
 	
 	/**
 	 * 通过对方法的Response注解， 来决定返回的类型
+	 * 默认返回JSON类型的数据
 	 */
-	// 
 	public static FullHttpResponse build(Object result, Response response) {
 		String text = TType.valueOf(String.class, result);
 		
@@ -71,12 +68,13 @@ public final class ResponseUtil {
 		return build(html, "text/html;charset=UTF-8");
 	}
 	
-	public static FullHttpResponse getErroResponse(Exception ex) {
+	public static FullHttpResponse buildErroResponse(Exception ex) {
 		return build("Server error: " + ex.getMessage(), "text/plain;charset=UTF-8");
 	}
 	
-	public static FullHttpResponse getNotFoundResponse() {
-		return build("Can not find specified action for name", "text/plain;charset=UTF-8");
+	public static FullHttpResponse buildNotFoundResponse(String name) {
+		return build(String.format("Can not find specified action for name: %s", name),
+				"text/plain;charset=UTF-8");
 	}
 	
 	/**
@@ -90,8 +88,8 @@ public final class ResponseUtil {
 		ByteBuf byteBuf = Unpooled.wrappedBuffer(message.getBytes());
 		FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, 
 				HttpResponseStatus.OK, byteBuf);
-		response.headers().add(CONTENT_TYPE, contentType);
-		response.headers().add(CONTENT_LENGTH, String.valueOf(byteBuf.readableBytes()));
+		response.headers().add(HttpHeader.CONTENT_TYPE, contentType);
+		response.headers().add(HttpHeader.CONTENT_LENGTH, String.valueOf(byteBuf.readableBytes()));
 		return response;
 	}
 }

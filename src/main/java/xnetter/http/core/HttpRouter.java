@@ -23,7 +23,7 @@ import xnetter.utils.DumpUtil;
 import xnetter.utils.ReflectUtil;
 
 /**
- * 路由上下文
+ * 路由上下文，包含所有的Action及其Request的响应处理
  * @author majikang
  * @create 2019-11-05
  */
@@ -32,8 +32,10 @@ public final class HttpRouter {
 	private static Logger logger = LoggerFactory.getLogger(HttpRouter.class);
 	
 	public static final String PATH_SEPARATOR = "/";
-	public static final String PATH_SEPARATORS = "//";
-	
+
+	/**
+	 * HTTP/HTTPS请求的响应路径
+	 */
 	public class Path {
 		// 路径的完整URL
 		public final String url;
@@ -78,6 +80,15 @@ public final class HttpRouter {
 			}
 			return null;
 		}
+
+		public boolean matchType(Request.Type type) {
+			for (Request.Type t : request.type()) {
+				if (t == type) {
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 	
 	public class Context {
@@ -116,7 +127,7 @@ public final class HttpRouter {
 			url = url.substring(0, index);
 		}
 		
-		url = RequestUtil.correctPath(currectSeparator(url));
+		url = RequestUtil.correctPath(RequestUtil.currectSeparator(url));
 		index = url.indexOf(PATH_SEPARATOR);
 		if (index <= 0) {
 			throw new RuntimeException(String.format("request url is wrong. url=%s", url));
@@ -136,7 +147,7 @@ public final class HttpRouter {
 	
 	/**
 	 * @param url WEB请求的路径
-	 * @param type EWB请求的方式
+	 * @param type WEB请求的方式
 	 * @param forcePath 是否强制检查路径
 	 * @return
 	 */
@@ -146,7 +157,7 @@ public final class HttpRouter {
 			url = url.substring(0, index);
 		}
 		
-		url = RequestUtil.correctPath(currectSeparator(url));
+		url = RequestUtil.correctPath(RequestUtil.currectSeparator(url));
 		index = url.indexOf(PATH_SEPARATOR);
 		if (index <= 0) {
 			throw new RuntimeException(String.format("request url is wrong. url=%s, should like: user/login...", url));
@@ -168,16 +179,7 @@ public final class HttpRouter {
 			throw new RuntimeException(String.format("request doesn't exist for name: %s/%s", actionName, requestName));
 		} 
 		
-		boolean match = false;
-		if (path != null) {
-			for (Request.Type t : path.request.type()) {
-				if (t == type) {
-					match = true;
-					break;
-				}
-			} 
-		}
-		
+		boolean match = path != null && path.matchType(type);
 		if (forcePath && !match) {
 			throw new RuntimeException(String.format("request type doesn't match. need type: %s/%s/{%s}, but found: %s/%s/%s", 
 					actionName, path.url, DumpUtil.toString(path.request.type()), actionName, requestName, type.toString()));
@@ -185,25 +187,11 @@ public final class HttpRouter {
 		
 		return new ActionProxy(path, requestName);
 	}
-	
+
 	/**
-	 * 有些请求URL里面，包含多个/，这里需要过滤掉
-	 * @param name
-	 * @return
-	 */
-	private String currectSeparator(String name) {
-		if (name.indexOf(PATH_SEPARATORS) >= 0) {
-			do {
-				name = StringUtils.replace(name, PATH_SEPARATORS, PATH_SEPARATOR);
-			} while (name.indexOf(PATH_SEPARATORS) >= 0);
-		}
-		return name;
-	}
-	
-	/**
-	 * 从所有Path里面找出跟URL匹配的
+	 * 从所有Path里面找出跟请求URL匹配的路径
 	 * @param context
-	 * @param needName
+	 * @param requstName
 	 * @return
 	 */
 	private Path getMatchPath(Context context, String requstName) {
@@ -220,10 +208,16 @@ public final class HttpRouter {
 		
 		return null;
 	}
-	
-	
-	
-	private void regist(Class<?> clazz) throws InstantiationException, IllegalAccessException, 
+
+	/**
+	 * 注册所有的Action
+	 * @param clazz
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
+	private void regist(Class<?> clazz) throws InstantiationException, IllegalAccessException,
 		RuntimeException, IOException {
 		
 		Action action = clazz.getAnnotation(Action.class);
@@ -249,7 +243,14 @@ public final class HttpRouter {
 			regist(context, method);
 		}
 	}
-	
+
+	/**
+	 * 注册Action上所有的响应函数
+	 * @param context
+	 * @param method
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
 	private void regist(Context context, Method method) throws RuntimeException, IOException {
 		Request request = method.getAnnotation(Request.class);
 		if (request == null) {

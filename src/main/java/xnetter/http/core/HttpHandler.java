@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import xnetter.http.core.annotation.Request;
 import xnetter.http.core.annotation.Response;
+import xnetter.http.core.utils.HttpHeader;
 import xnetter.http.core.utils.ResponseUtil;
 import xnetter.http.data.decode.Decoder;
 import xnetter.http.data.encode.Encoder;
@@ -29,7 +30,7 @@ import xnetter.http.wsock.WSockHandler;
 import xnetter.utils.DumpUtil;
 
 /**
- * Action 分发器
+ * 将所有HTTP/HTTPS请求分发给相应的Action
  * @author majikang
  * @create 2019-11-05
  */
@@ -68,7 +69,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 				handleHttp(ctx, request);
 			}
 		} catch (Exception ex) {
-			writeResponse(request, ResponseUtil.getErroResponse(ex), ctx.channel(), true);
+			writeResponse(request, ResponseUtil.buildErroResponse(ex), ctx.channel(), true);
 		}
 	}
 		
@@ -77,14 +78,20 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
         cause.printStackTrace();
         ctx.close();
     }
-	
+
+	/**
+	 * 如果是HTTP/HTTPS请求，则开始分发给Action
+	 * @param ctx
+	 * @param request
+	 * @throws Exception
+	 */
 	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest request) 
 			throws Exception {
 		Request.Type requestType = getType(request.method());
 		ActionProxy proxy = router.newAction(request.uri(), requestType);
 		
 		if (proxy == null) {
-			writeResponse(request, ResponseUtil.getNotFoundResponse(), ctx.channel(), true);
+			writeResponse(request, ResponseUtil.buildNotFoundResponse(request.uri()), ctx.channel(), true);
 			return;
 		} 
 		
@@ -97,7 +104,13 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		Response response = proxy.path.getMethodAnn(Response.class);
 		writeResponse(request, ResponseUtil.build(result, response), ctx.channel(), false);
 	}
-	
+
+	/**
+	 * 如果是Websocket请求，则启动握手流程
+	 * @param ctx
+	 * @param request
+	 * @throws Exception
+	 */
 	private void handleWebsocket(ChannelHandlerContext ctx, FullHttpRequest request) 
 			throws Exception {
 		
@@ -124,13 +137,16 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
     		logger.debug(DumpUtil.dump("\t", params));
     		proxy.path.method.invoke(action, params);
 		}
-    	
+
+		/**
+		 * Websocket握手成功后，不需要HttpHandler处理
+		 * 所以移除HttpHandler，加入WSockHandler处理
+		 */
     	ctx.pipeline().remove(this.getClass());
     	ctx.pipeline().addLast(new WSockHandler(action, handshaker));
         handshaker.handshake(ctx.channel(), request);
 	}
-	
-	
+
 	private void writeResponse(HttpRequest request, FullHttpResponse response, Channel channel, boolean forceClose) {
 		boolean close = isClose(request);
 		if(!close && !forceClose){

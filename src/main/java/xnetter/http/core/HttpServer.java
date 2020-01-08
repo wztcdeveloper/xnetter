@@ -17,13 +17,17 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 
+/**
+ * 启动HTTP/HTTPS服务器
+ * @author majikang
+ */
 public final class HttpServer {
 	private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
     
 	 private ServerChannel serverChannel;
 	 
     /**
-     * Netty创建全部都是实现自AbstractBootstrap。
+     * Netty的创建全部都是实现自AbstractBootstrap。
      * 客户端的是Bootstrap，服务端的则是ServerBootstrap。
      **/
     public void start(final int port, final HttpRouter router) throws InterruptedException {
@@ -35,21 +39,21 @@ public final class HttpServer {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
             	  ChannelPipeline ph = ch.pipeline();
+            	  // 把单个HTTP/HTTPS请求转为FullHttpRequest或FullHttpResponse
                   ph.addLast("encoder", new HttpResponseEncoder());
                   ph.addLast("decoder", new HttpRequestDecoder());
-                  // 把单个http请求转为FullHttpReuest或FullHttpResponse
                   ph.addLast("aggregator", new HttpObjectAggregator(10*1024*1024));
-                  ph.addLast("dipatcher",  new HttpHandler(port, router));// 服务端业务逻辑
+                  // 所有的HTTP/HTTPS请求，都由HttpHandler来处理
+                  ph.addLast("dispatcher",  new HttpHandler(port, router));
             }
     	};
     	
         bootstrap.group(boss, work)
         	.channel(NioServerSocketChannel.class)
-        	.childHandler(initializer); //设置过滤器
+        	.childHandler(initializer);
     	
         // 服务器绑定端口监听
-        ChannelFuture f = bootstrap.bind(port).sync();
-        serverChannel = (ServerChannel)f.channel();
+        serverChannel = (ServerChannel)bootstrap.bind(port).sync().channel();
         logger.info("Netty-http server is listening on port: {}", port);
             
     }

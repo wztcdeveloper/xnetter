@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Response 注解
+ * Response 对HTTP/HTTPS请求的响应
  * @author majikang
  * @create 2019-11-05
  */

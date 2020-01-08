@@ -1,4 +1,4 @@
-package xnetter.http.core;
+package xnetter.http.core.utils;
 
 public final class HttpHeader {
 	private HttpHeader() {
