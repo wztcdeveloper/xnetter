@@ -21,7 +21,7 @@ import xnetter.sock.core.Manager;
 /**
  * UDP服务器，监听一个端口，等待接受数据
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-25
  */
 public abstract class UdpServer extends Manager {
 	protected static final Logger logger = LoggerFactory.getLogger(UdpServer.class);

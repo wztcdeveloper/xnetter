@@ -16,7 +16,7 @@ import xnetter.utils.ReflectUtil;
 /**
  * 转发器, 收到数据经过解码后，会由Dispatcher转发给对应的Processor
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-05
  */
 public abstract class Dispatcher<T> {
 
@@ -42,7 +42,8 @@ public abstract class Dispatcher<T> {
 	}
 	
 	/**
-	 * @param packageName Processor对应的包，会递归扫描所有的Processor注册
+	 * 递归扫描所有的Processor注册
+	 * @param packageName Processor对应的包
 	 */
 	@SuppressWarnings("unchecked")
 	public void regist(String packageName) {
@@ -85,11 +86,23 @@ public abstract class Dispatcher<T> {
         	this.notFoundProcessor(msg);
         }
 	}
-	
+
+	/**
+	 * 分发到Processor处理前调用
+	 * @param msg
+	 */
 	protected abstract void beforeDispatch(T msg);
-	
+
+	/**
+	 * 分发到Processor处理后调用
+	 * @param msg
+	 */
 	protected abstract void afterDispatch(T msg);
-	
+
+	/**
+	 * 没有找到相应的Processor时调用
+	 * @param msg
+	 */
 	protected abstract void notFoundProcessor(T msg);
 	
 }

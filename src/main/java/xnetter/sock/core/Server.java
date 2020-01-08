@@ -24,9 +24,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.ScheduledFuture;
 
 /**
- * 服务端的抽象类
+ * TCP服务端的抽象类
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-05
  */
 public abstract class Server extends Manager {
 
@@ -81,7 +81,8 @@ public abstract class Server extends Manager {
         // 服务器绑定端口监听
     	serverChannel = bootstrap.bind(conf.ip, conf.port).sync().channel();
         logger.info("Netty-tcp server is listening on {}:{}", conf.ip, conf.port);
-        
+
+        // 是否保持心跳
         if (conf.keepAlive) {
             long sendInterval = Math.max(conf.expireTime / 2, 1);
             keepAliveFuture = work.scheduleWithFixedDelay(this::doKeepAlive, 

@@ -1,5 +1,9 @@
 package xnetter.sock.marshal;
 
+/**
+ * @author majikang
+ * @create 2019-12-05
+ */
 public class MarshalException  extends RuntimeException {
 	/**
 	 * 

@@ -9,6 +9,11 @@ import xnetter.sock.core.Dispatcher;
 import xnetter.sock.core.Handler;
 import xnetter.sock.core.Manager;
 
+/**
+ * 协议处理器
+ * @author majikang
+ * @create 2019-12-05
+ */
 public class ProtocolHandler extends Handler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolHandler.class);
@@ -22,6 +27,11 @@ public class ProtocolHandler extends Handler {
 		this.send(KeepAlive.InsData);
 	}
 
+	/**
+	 * 接收到数据后，调用分发器来分发
+	 * @param ctx
+	 * @param msg 这里已经解码并序列化为协议对象了
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onRecv(ChannelHandlerContext ctx, Object msg) {

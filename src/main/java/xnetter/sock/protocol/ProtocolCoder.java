@@ -22,20 +22,23 @@ import xnetter.sock.marshal.Octets;
 import xnetter.utils.ClassScaner;
 import xnetter.utils.TimeUtil;
 
+/**
+ * 对协议进行编解码
+ * @author majikang
+ * @create 2019-12-05
+ */
 public class ProtocolCoder extends Coder {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolCoder.class);
-	private static final ThreadLocal<Octets> localOss = ThreadLocal.withInitial(() -> new Octets(10240));
+	private static final ThreadLocal<Octets> localOss
+            = ThreadLocal.withInitial(() -> new Octets(10240));
 	
 	protected final int maxMsgSize;
     protected final Octets inputBuff;
     protected final Octets oneMessageBuff;
     
     private final Map<Integer, Protocol> protocols = new HashMap<>();
-    
-    /**
-     * @param packageName Protocol对应的包，会递归扫描所有的Protocol注册
-     */
+
 	public ProtocolCoder(Manager manager, Handler handler, String packageName) {
 		super(manager, handler);
 		
@@ -48,6 +51,10 @@ public class ProtocolCoder extends Coder {
         }
 	}
 
+    /**
+     * 递归扫描所有的Protocol注册
+     * @param packageName Protocol对应的包
+     */
 	public void regist(String packageName) {
 		try {
 			for (Class<?> clazz : ClassScaner.scan(packageName, Protocol.class, true)) {
@@ -75,7 +82,13 @@ public class ProtocolCoder extends Coder {
         bs.clear();
         return bs;
     }
-    
+
+    /**
+     * 将msg序列化到字节流ByteBuf里面，并发送
+     * @param msg
+     * @param out
+     * @throws Exception
+     */
 	@Override
     protected void toEncode(Object msg, ByteBuf out) throws Exception {
         Octets outputBuff = getAndClear();
@@ -90,6 +103,14 @@ public class ProtocolCoder extends Coder {
         }
     }
 
+    /**
+     * 根据协议号ID，从protocols获得创建相应的协议对象，
+     * 并从ByteBuf字节流中读取，反序列化到协议对象
+     * @param ctx
+     * @param in
+     * @param out 可能同时有多个协议对象
+     * @throws Exception
+     */
     @Override
     protected void toDecode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         inputBuff.readFrom(in);

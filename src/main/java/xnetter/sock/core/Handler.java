@@ -12,7 +12,7 @@ import io.netty.channel.ChannelHandlerContext;
 /**
  * 处理器, 每个Handler对应一个建立的连接
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-05
  */
 public abstract class Handler extends ChannelDuplexHandler {
 	
@@ -131,6 +131,7 @@ public abstract class Handler extends ChannelDuplexHandler {
 		}
 	}
 
+	@Override
 	public String toString() {
 		return String.format("sid=%d[remote=%s]", sid, getRemoteAddress());
 	}

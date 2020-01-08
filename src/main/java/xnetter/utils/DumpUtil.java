@@ -11,7 +11,7 @@ import xnetter.http.type.TType;
 import com.alibaba.fastjson.JSONArray;
 
 /**
- * 格式化工具类
+ * 格式化成字符串的工具类
  * @author majikang
  * @create 2019-11-05
  */

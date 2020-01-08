@@ -19,7 +19,7 @@ import xnetter.sock.core.Manager;
 /**
  * UDP处理器, 每个Handler对应一个建立的连接
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-25
  */
 public abstract class UdpHandler extends Handler {
 
@@ -103,7 +103,14 @@ public abstract class UdpHandler extends Handler {
 			return false;
 		}
 	}
-	
+
+	/**
+	 * 无论服务器还是客户端，收到数据后给对方发数据，使用的remoteAddress是DatagramPacket携带的地址
+	 * 服务器不会主动给客户端发送数据，如果客户端主动给服务器发送数据，则直接发给固定的IP和Port
+	 * @param byteBuf
+	 * @return
+	 * @throws InterruptedException
+	 */
 	public boolean send(ByteBuf byteBuf) throws InterruptedException {
 		if (context != null) {
 			context.channel().writeAndFlush(new DatagramPacket(
@@ -112,8 +119,11 @@ public abstract class UdpHandler extends Handler {
 		}
 		return false;
 	}
-	
-	
+
+	/**
+	 * 如果对端有数据发来，则用对端的网络地址；否则使用配置好的IP和Port
+	 * @return
+	 */
 	protected InetSocketAddress getRemoteSocketAddr() {
 		if (remoteAddress == null) {
 			remoteAddress = new InetSocketAddress(manager.conf.ip, manager.conf.port);

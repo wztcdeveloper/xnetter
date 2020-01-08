@@ -29,7 +29,7 @@ import xnetter.sock.core.Manager;
 /**
  * UDP客户端，绑定任意端口，主动发送数据
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-25
  */
 public abstract class UdpClient extends Manager {
 	protected static final Logger logger = LoggerFactory.getLogger(UdpClient.class);

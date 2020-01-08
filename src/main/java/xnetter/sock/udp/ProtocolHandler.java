@@ -4,9 +4,9 @@ import xnetter.sock.core.Dispatcher;
 import xnetter.sock.core.Manager;
 import xnetter.sock.protocol.Protocol;
 
-public class ProtocolHandler extends UdpHandler {
+public class ProtocolUdpHandler extends UdpHandler {
 
-	public ProtocolHandler(long sid, Manager manager) {
+	public ProtocolUdpHandler(long sid, Manager manager) {
 		super(sid, manager);
 		// TODO Auto-generated constructor stub
 	}

@@ -21,9 +21,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.ScheduledFuture;
 
 /**
- * 客户端的抽象类
+ * TCP客户端的抽象类
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-05
  */
 public abstract class Client extends Manager {
 	protected static final Logger logger = LoggerFactory.getLogger(Client.class);
@@ -88,7 +88,8 @@ public abstract class Client extends Manager {
                     .handler(initializer);
             
             doConnect();
-            
+
+            // 是否保持心跳
             if (conf.keepAlive) {
                 long sendInterval = Math.max(conf.expireTime / 2, 1);
                 keepAliveFuture = workGroup.scheduleWithFixedDelay(this::doKeepAlive, 
@@ -129,7 +130,7 @@ public abstract class Client extends Manager {
     	logger.info("close from {}", handler.toString());
        
         synchronized (this) {
-        	// 删除的不是原来的
+        	// 断开的不是原来建立连接的
             if (this.handler != null && this.handler != handler) {
                 return;
             }
@@ -137,7 +138,8 @@ public abstract class Client extends Manager {
             if (this.handler != null) {
                 this.handler = null;
             }
-            
+
+            // 是否断开重连
             if (conf.reconnrect && !hasClose) {
             	workGroup.schedule(this::doConnect, 
             			conf.reconnectInterval, TimeUnit.SECONDS);

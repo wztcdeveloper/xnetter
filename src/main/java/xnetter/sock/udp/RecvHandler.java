@@ -12,14 +12,14 @@ import xnetter.utils.ObjectPool;
 
 /**
  * UDP是无连接的，服务器启动单线程监听端口并接收数据
- * 所以这里用RecvHandler来接收数据，并从对象池handlers里面获取一个Handler，
+ * 为了服务器处理性能，用RecvHandler来接收数据，并从对象池handlers里面获取一个Handler，
  * 扔到线程池里面去执行
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-25
  */
 public class RecvHandler extends Handler {
 	private static final int MIN_COUNT = 1;
-	private static final int MAX_COUNT = 100;
+	private static final int MAX_COUNT = 10000;
 
 	private final AtomicLong sessionId;
 	private final ScheduledThreadPoolExecutor executor;
@@ -49,6 +49,11 @@ public class RecvHandler extends Handler {
 		
 	}
 
+	/**
+	 * 接收到数据，获取任意一个Handler，并扔到线程池里面去处理
+	 * @param ctx
+	 * @param msg
+	 */
 	@Override
 	public void onRecv(ChannelHandlerContext ctx, Object msg) {
 		// TODO Auto-generated method stub

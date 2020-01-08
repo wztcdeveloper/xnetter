@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 多个客户端的抽象类，这里可以连接多个服务器
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-05
  */
 public abstract class MultiClient {
 	
@@ -82,7 +82,12 @@ public abstract class MultiClient {
 	private DynamicClient makeClient(String name, Manager.Conf conf) {
 		return new DynamicClient(name, conf, dispatcher, coderFactory, handlerFactory);
 	}
-	
+
+	/**
+	 * 如果客户端配置有变化，通过该接口来修改
+	 * @param confs
+	 * @throws InterruptedException
+	 */
     public synchronized void updateClients(Map<String, Manager.Conf> confs) throws InterruptedException {
     	Map<String, DynamicClient> newClients = new HashMap<>();
     			
@@ -112,9 +117,11 @@ public abstract class MultiClient {
      * @param client
      */
 	protected synchronized void registClient(int remoteId, DynamicClient client) {
-        // 如果 remoteId 为 0,这是非法值
-        // 如果 id2Clients或者clients包含了client, 说明多次注册
-        // 如果 name2Clients 未包含此对象,说明已经在updateServer删除后才注册的
+		/**
+		 * 如果 remoteId 为 0,是非法值
+		 * 如果 id2Clients或者clients包含了client, 说明多次注册
+		 * 如果 name2Clients 未包含此对象,说明已经在updateServer删除后才注册的
+		 */
         if (remoteId == 0) {
         	client.close();
         	throw new RuntimeException("remoteId can't be zero.");
@@ -139,7 +146,11 @@ public abstract class MultiClient {
         clients.add(client);
         id2Clients.put(remoteId, client);
     }
-	
+
+	/**
+	 * 断开连接后，将Client从当前维护池里面移除
+	 * @param client
+	 */
 	private synchronized void unregistClient(DynamicClient client) {
         int serverId = client.getRemoteId();
         if (serverId == 0) {

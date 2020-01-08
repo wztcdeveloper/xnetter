@@ -11,7 +11,7 @@ import io.netty.handler.codec.ByteToMessageCodec;
  * 编解码器, 接收到数据的解码和发送数据前的编码
  * 需要实现Factory来构建，默认提供ProtocolCoder
  * @author majikang
- * @create 2019-11-05
+ * @create 2019-12-05
  */
 public abstract class Coder extends ByteToMessageCodec<Object> {
 	public interface Factory {
@@ -48,8 +48,22 @@ public abstract class Coder extends ByteToMessageCodec<Object> {
 		
 		manager.onAfterDecode(ctx, in, out);
 	}
-	
+
+	/**
+	 * 真正的编码实现
+	 * @param msg
+	 * @param out
+	 * @throws Exception
+	 */
 	protected abstract void toEncode(Object msg, ByteBuf out) throws Exception ;
+
+	/**
+	 * 真正的解码实现
+	 * @param ctx
+	 * @param in
+	 * @param out
+	 * @throws Exception
+	 */
 	protected abstract void toDecode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception;
 	
 	@Override

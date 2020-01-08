@@ -6,6 +6,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+/**
+ * 字节流的实现，默认编码为UTF-8
+ * @author majikang
+ * @create 2019-12-05
+ */
 public class Octets {
 
     public static final byte[] EMPTY_BYTES = new byte[0];

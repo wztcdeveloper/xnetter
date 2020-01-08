@@ -2,6 +2,11 @@ package xnetter.sock.protocol;
 
 import xnetter.sock.marshal.Octets;
 
+/**
+ * 心跳协议
+ * @author majikang
+ * @create 2019-12-05
+ */
 public class KeepAlive extends Protocol {
 
     public static final int TYPEID = 0;
