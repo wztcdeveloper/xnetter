@@ -17,20 +17,36 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 
+import java.io.IOException;
+
 /**
  * 启动HTTP/HTTPS服务器
  * @author majikang
  */
 public final class HttpServer {
 	private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
-    
-	 private ServerChannel serverChannel;
-	 
+
+	private final int port;
+	private final HttpRouter router;
+	private ServerChannel serverChannel;
+
     /**
-     * Netty的创建全部都是实现自AbstractBootstrap。
-     * 客户端的是Bootstrap，服务端的则是ServerBootstrap。
-     **/
-    public void start(final int port, final HttpRouter router) throws InterruptedException {
+     * 监听端口port, 并且自动扫描和注册actionPackages下的所有Action
+     * @param port 监听端口
+     * @param actionPackages Action的包路径
+     */
+	public HttpServer(final int port, final String... actionPackages)
+            throws ClassNotFoundException, InstantiationException,
+            IllegalAccessException, IOException {
+	     this(port, new HttpRouter(actionPackages));
+	}
+
+    public HttpServer(final int port, final HttpRouter router) {
+        this.port = port;
+        this.router = router;
+    }
+
+    public void start() throws InterruptedException {
     	ServerBootstrap bootstrap = new ServerBootstrap();
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup work = new NioEventLoopGroup();
@@ -55,7 +71,6 @@ public final class HttpServer {
         // 服务器绑定端口监听
         serverChannel = (ServerChannel)bootstrap.bind(port).sync().channel();
         logger.info("Netty-http server is listening on port: {}", port);
-            
     }
     
     public void close() {

@@ -1,9 +1,7 @@
 package xnetter.http.core;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.codec.CharEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +40,10 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     private static final String CONNECTION_CLOSE = "close";
 
-    private int port;
-	private HttpRouter router;
+    private final int port;
+	private final HttpRouter router;
 	
-	public HttpHandler(int port, HttpRouter router) throws ClassNotFoundException, IOException, 
-		InstantiationException, IllegalAccessException {
-		
+	public HttpHandler(int port, HttpRouter router) {
 		this.port = port;
 		this.router = router;
 	}
@@ -60,7 +56,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception{
 		logger.debug("recv from {}: {}", ctx.channel().remoteAddress().toString(), request.uri());
-		logger.debug("recv content: \n{}", request.content().toString(Charset.forName(CharEncoding.UTF_8)));
+		logger.debug("recv content: \n{}", request.content().toString(StandardCharsets.UTF_8));
 		
 		try {
 			if ("websocket".equalsIgnoreCase(request.headers().get("Upgrade"))) {
@@ -69,7 +65,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 				handleHttp(ctx, request);
 			}
 		} catch (Exception ex) {
-			writeResponse(request, ResponseUtil.buildErroResponse(ex), ctx.channel(), true);
+			writeResponse(request, ResponseUtil.buildError(ex), ctx.channel(), true);
 		}
 	}
 		
@@ -91,7 +87,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		ActionProxy proxy = router.newAction(request.uri(), requestType);
 		
 		if (proxy == null) {
-			writeResponse(request, ResponseUtil.buildNotFoundResponse(request.uri()), ctx.channel(), true);
+			writeResponse(request, ResponseUtil.buildNotFound(request.uri()), ctx.channel(), true);
 			return;
 		} 
 		
@@ -113,7 +109,6 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	 */
 	private void handleWebsocket(ChannelHandlerContext ctx, FullHttpRequest request) 
 			throws Exception {
-		
 		HttpRouter.Context context = router.getContext(request.uri());
 		if (context == null || !(context.action instanceof WSockAction)) {
 			throw new RuntimeException(String.format("wsock action doesn't exist for name: %s", request.uri()));
@@ -154,7 +149,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		}
 		
 		logger.debug("send to {}: {}", channel.remoteAddress().toString(), 
-				response.content().toString(Charset.forName(CharEncoding.UTF_8)));
+				response.content().toString(StandardCharsets.UTF_8));
 		
 		ChannelFuture future = channel.write(response);
 		if(close || forceClose){
@@ -163,8 +158,8 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	}
 	
 	private boolean isClose(HttpRequest request) {
-		if(request.headers().contains(HttpHeader.CONNECTION, CONNECTION_CLOSE, true) ||
-			(request.protocolVersion().equals(HttpVersion.HTTP_1_0) && 
+		if (request.headers().contains(HttpHeader.CONNECTION, CONNECTION_CLOSE, true) ||
+			(request.protocolVersion().equals(HttpVersion.HTTP_1_0) &&
 			!request.headers().contains(HttpHeader.CONNECTION, CONNECTION_KEEP_ALIVE, true))) {
 			return true;
 		}

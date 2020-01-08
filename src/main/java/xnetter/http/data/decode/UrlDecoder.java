@@ -4,10 +4,9 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.apache.commons.codec.CharEncoding;
 
 /**
  * 解析URL中的数据
@@ -27,7 +26,7 @@ public class UrlDecoder extends Decoder {
 	protected void doDecode(FullHttpRequest request) {
 		// TODO Auto-generated method stub
 		
-		QueryStringDecoder decoder = new QueryStringDecoder(request.uri(), Charset.forName(CharEncoding.UTF_8));
+		QueryStringDecoder decoder = new QueryStringDecoder(request.uri(), StandardCharsets.UTF_8);
 		for (Entry<String, List<String>> entry : decoder.parameters().entrySet()) {
 			params.put(entry.getKey(), entry.getValue().get(0));
 		}

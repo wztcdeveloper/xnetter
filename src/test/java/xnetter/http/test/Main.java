@@ -67,7 +67,7 @@ public class Main {
     		String path = HttpServer.class.getResource("/").getPath();
     		PropertyConfigurator.configure(path + "/log4j.properties");
     		
-    		new HttpServer().start(5555, new HttpRouter("xnetter.http.test"));
+    		new HttpServer(5555, "xnetter.http.test").start();
 
     		while (true) {
     			Thread.sleep(100);

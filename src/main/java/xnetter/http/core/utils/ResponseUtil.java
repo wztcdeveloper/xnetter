@@ -68,11 +68,11 @@ public final class ResponseUtil {
 		return build(html, "text/html;charset=UTF-8");
 	}
 	
-	public static FullHttpResponse buildErroResponse(Exception ex) {
+	public static FullHttpResponse buildError(Exception ex) {
 		return build("Server error: " + ex.getMessage(), "text/plain;charset=UTF-8");
 	}
 	
-	public static FullHttpResponse buildNotFoundResponse(String name) {
+	public static FullHttpResponse buildNotFound(String name) {
 		return build(String.format("Can not find specified action for name: %s", name),
 				"text/plain;charset=UTF-8");
 	}

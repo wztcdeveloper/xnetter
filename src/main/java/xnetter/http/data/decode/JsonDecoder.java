@@ -2,9 +2,7 @@ package xnetter.http.data.decode;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 
-import java.nio.charset.Charset;
-
-import org.apache.commons.codec.CharEncoding;
+import java.nio.charset.StandardCharsets;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -26,7 +24,7 @@ public class JsonDecoder extends Decoder {
 	@Override
 	protected void doDecode(FullHttpRequest request) {
 		// TODO Auto-generated method stub
-		String content = request.content().toString(Charset.forName(CharEncoding.UTF_8));
+		String content = request.content().toString(StandardCharsets.UTF_8);
 		Object json = JSONObject.parse(content);
 		
 		if (json instanceof JSONObject) {

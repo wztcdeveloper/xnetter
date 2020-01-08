@@ -1,8 +1,7 @@
 package xnetter.http.wsock;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.codec.CharEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +18,12 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 
+/**
+ * 负责接收WebSocket消息，并转发给Action处理
+ * 每个Handler需要有一个Action来与之对应
+ *  @author majikang
+ *  @create 2019-11-05
+ */
 public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
 	private static Logger logger = LoggerFactory.getLogger(WSockHandler.class);
@@ -61,7 +66,7 @@ public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 		if (ctx != null && ctx.channel().isActive()) {
         	ByteBuf buf = Unpooled.copiedBuffer(datas);
         	logger.info("read content from {}: {}", getRemoteAddr(ctx),
-        			buf.toString(Charset.forName(CharEncoding.UTF_8)));
+        			buf.toString(StandardCharsets.UTF_8));
         	
 			ctx.channel().write(new BinaryWebSocketFrame(buf));
 		}
@@ -92,7 +97,7 @@ public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 		// TODO Auto-generated method stub
 		setContext(ctx, false);
 		logger.info("read content from {}: {}", getRemoteAddr(ctx),
-				frame.content().toString(Charset.forName(CharEncoding.UTF_8)));
+				frame.content().toString(StandardCharsets.UTF_8));
 		
 		if (frame instanceof CloseWebSocketFrame) { 
 			// 收到关闭指令

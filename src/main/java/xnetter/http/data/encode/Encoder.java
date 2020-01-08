@@ -40,12 +40,19 @@ public class Encoder {
 	private final HttpRouter.Path path;
 	private final FullHttpRequest request;
 	
-	
 	public Encoder(FullHttpRequest request, HttpRouter.Path path) {
 		this.request = request;
 		this.path = path;
 	}
-	
+
+	/**
+	 * 将请求参数转换为接口参数数组
+	 * @param url 请求URL
+	 * @param params 请求参数
+	 * @return 接口参数数组
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
 	public Object[] encode(String url, Map<String, Object> params) 
 			throws InstantiationException, IllegalAccessException {
 		String[] urls = StringUtils.split(url, HttpRouter.PATH_SEPARATOR);
@@ -61,15 +68,18 @@ public class Encoder {
 			if (reqParam != null) {
 				paramName = reqParam.name();
 			}
-			
-			// 生成当前的调用参数
+
 			if (getClass(paramType) == FullHttpRequest.class) {
+				// 接口可以直接使用FullHttpRequest对象
 				results[i] = request;
 			} else if (pathVar != null) {
+				// PathVariable注解的接口参数，从请求URL里面获得
 				results[i] = getPathValue(urls, paramType, pathVar.name());
 			} else if (params.containsKey(paramName)) {
+				// 根据接口参数变量名，从params里面去获得相应的值
 				results[i] = getParamValue(paramType, params.get(paramName));
 			} else if (params.containsKey(Decoder.DEFAULT_KEY)) {
+				// 有些请求只传递Value，所以提供默认的Key
 				results[i] = getParamValue(paramType, params.get(Decoder.DEFAULT_KEY));
 			} else {
 				results[i] = getParamValue(paramType, params);
@@ -78,8 +88,14 @@ public class Encoder {
 		
 		return results;
 	}
-	
-	// 返回目标注解
+
+	/**
+	 * 从所有注解里面，找到某类型的目标注解
+	 * @param annotations
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private <T extends Annotation> T getAnnotation(Annotation[] annotations, Class<T> clazz) {
 		if (annotations == null || annotations.length == 0) {
@@ -94,8 +110,14 @@ public class Encoder {
 		
 		return null;
 	}
-	
-	// 路径中含有变量，则需要将URL中的值获得，并转换到接口变量中
+
+	/**
+	 * 路径中含有变量，则需要将URL中的值获得，并转换到接口变量中
+	 * @param urls
+	 * @param varType
+	 * @param varName
+	 * @return
+	 */
 	private Object getPathValue(String[] urls, Type varType, String varName) {
 		if (path.names.length != urls.length) {
 			return null;
@@ -111,32 +133,12 @@ public class Encoder {
 		return null;
 	}
 
-	// 根据type获得相应的class
-	// 因为接口参数限定，有些类型暂时不支持
-	private Class<?> getClass(Type type) throws EncodeException {
-		Class<?> clazz = null;
-		if (type instanceof ParameterizedType) {
-			clazz = (Class<?>) ((ParameterizedType)type).getRawType();
-		} else if (type instanceof GenericArrayType) {
-			throw new EncodeException("Parameter of interface does't suppert GenericArrayType");
-		} else if (type instanceof WildcardType) {
-			throw new EncodeException("Parameter of interface does't suppert WildcardType");
-		} else if (type instanceof TypeVariable) {
-			throw new EncodeException("Parameter of interface does't suppert TypeVariable");
-		} else {
-			clazz = (Class<?>)type;
-		}
-		return clazz;
-	}
-	
-
-	
 	/**
 	 * 根据特定的类型，将value转成需要的对象
 	 * 目前支持基础类型、Bean对象、数组、List、Set、Map
-	 * @param paramType
-	 * @param value
-	 * @return
+	 * @param paramType 参数类型
+	 * @param value 参数值
+	 * @return 返回对象
 	 */
 	@SuppressWarnings("unchecked")
 	private Object getParamValue(Type paramType, Object value) 
@@ -213,8 +215,36 @@ public class Encoder {
 			return value;
 		}
 	}
-	
-	// 构造clazz对象，并根据map对其成员赋值
+
+	/**
+	 * 根据type获得相应的class
+	 * 因为接口参数限定，有些类型暂时不支持
+	 * @param type
+	 * @return
+	 * @throws EncodeException
+	 */
+	private Class<?> getClass(Type type) throws EncodeException {
+		Class<?> clazz = null;
+		if (type instanceof ParameterizedType) {
+			clazz = (Class<?>) ((ParameterizedType)type).getRawType();
+		} else if (type instanceof GenericArrayType) {
+			throw new EncodeException("Parameter of interface does't suppert GenericArrayType");
+		} else if (type instanceof WildcardType) {
+			throw new EncodeException("Parameter of interface does't suppert WildcardType");
+		} else if (type instanceof TypeVariable) {
+			throw new EncodeException("Parameter of interface does't suppert TypeVariable");
+		} else {
+			clazz = (Class<?>)type;
+		}
+		return clazz;
+	}
+
+	/**
+	 * 构造clazz对象，并根据map对其成员赋值
+	 * @param map 参数Key与Value
+	 * @param clazz 需要构建的类
+	 * @return 构建好的对象
+	 */
 	private Object toJavaObject(Map<Object, Object> map, Class<?> clazz) {
 		try {
 			Object target = clazz.newInstance();
@@ -241,6 +271,5 @@ public class Encoder {
 		
 		return null;
 	}
-	
 	
 }

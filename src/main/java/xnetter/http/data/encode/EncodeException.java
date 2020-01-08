@@ -1,5 +1,9 @@
 package xnetter.http.data.encode;
 
+/**
+ * @author majikang
+ * @create 2019-11-05
+ */
 public class EncodeException extends RuntimeException {
 
 	/**
