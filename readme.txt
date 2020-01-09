@@ -1,6 +1,6 @@
     xnetter是基于netty的网络架构，目的是简单易用。
     用户只需要关心基础数据和业务逻辑，对网络通信的过程、网络数据的编解码、加解密、路由转发无
-需关心。目前实现了http、websocket、tcp、udp网络过程的封装。
+需关心。目前实现了http/https、websocket/wss、tcp、udp网络过程的封装。
 
 1 netty介绍
     netty是jboss提供的一个java开源框架，netty提供异步的、事件驱动的网络应用程序框架和工具，
@@ -25,7 +25,8 @@
 这里的Action需要实现接口WSockAction。websocket初始化时，由HttpClient发起Get请求，其中Headers
 里面包含“Upgrade”=“websocket”的键值对。这时服务器需要启动握手流程，并且把从网络处理里面把
 HttpHandler移除，加入新的WSockHandler。以后数据通信就由WSockHandler负责了。
-    已经支持wss，通过HttpConf去配置。
+    已经支持wss，通过HttpConf去配置。客户端通过wss访问时，不支持IP和端口，应该通过域名的形式来
+访问。
 
 4 tcp
     通过继承Server来启动服务器，继承Client来启动客户端。这里需要涉及到的配置参数由Manager.Conf
