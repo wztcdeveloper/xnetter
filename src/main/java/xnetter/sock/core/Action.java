@@ -1,11 +1,11 @@
 package xnetter.sock.core;
 
 /**
- * 处理器, 收到的每个数据对象对应一个处理器
+ * 业务逻辑, 收到的每个数据对象对应一个Action
  * @author majikang
  * @create 2019-12-05
  */
-public interface Processor<T> {
+public interface Action<T> {
 
     void process(T msg);
 }

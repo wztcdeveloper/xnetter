@@ -1,9 +1,9 @@
 package xnetter.sock.test;
 
 
-import xnetter.sock.core.Processor;
+import xnetter.sock.core.Action;
 
-public class PChallenge implements Processor<CChallenge> {
+public class PChallenge implements Action<CChallenge> {
 	
 	@Override
 	public void process(CChallenge msg) {

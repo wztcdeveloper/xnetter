@@ -29,11 +29,11 @@ HttpHandler移除，加入新的WSockHandler。以后数据通信就由WSockHand
 4 tcp
     通过继承Server来启动服务器，继承Client来启动客户端。这里需要涉及到的配置参数由Manager.Conf
 完成。每一个连接，都会实例化一个Handler来接收并处理数据。下面是tcp的接收和发送流程。
-    Recv: Client -> Decode -> Handler -> Dispatcher -> Processor
+    Recv: Client -> Decode -> Handler -> Dispatcher -> Action
     Send: Handler -> Encode -> Client
     为了简便大家使用，提供了Protocol作为收发数据的基础实现，大家也可以仿照Protocol来实现其他的
 通信数据框架。但是需要自己实现自己的编解码器（继承自Coder)、分发器（继承自Dispatcher）、自己的
-处理器（继承自Handler）。当然业务逻辑处理的Processor是必须的。
+处理器（继承自Handler）。当然业务逻辑处理的Action是必须的。
 
     为了大家使用方便，提供了MultiClient类，它可以维护多个客户端，分别去连接不同的服务器。如果
 相应的服务器发生变化，可以通过方法updateClients去调整。但有一点需要记住的是：每一个客户端需要

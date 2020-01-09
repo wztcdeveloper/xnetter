@@ -26,7 +26,7 @@ public class ProtocolDispatcher extends Dispatcher<Protocol> {
 	}
 
 	@Override
-	protected void notFoundProcessor(Protocol msg) {
+	protected void notFoundAction(Protocol msg) {
 		// TODO Auto-generated method stub
 		 msg.getHandler().close();
 	}

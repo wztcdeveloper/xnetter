@@ -8,7 +8,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import xnetter.http.core.HttpRouter;
 import xnetter.http.core.HttpServer;
-import xnetter.sock.core.Processor;
+import xnetter.sock.core.Action;
 import xnetter.sock.marshal.IMarshal;
 import xnetter.sock.marshal.Octets;
 import xnetter.sock.protocol.Protocol;
@@ -47,7 +47,7 @@ public class Main {
 		
 	}
 	
-	public static class AP implements Processor<Object1> {
+	public static class AP implements Action<Object1> {
 
 		@Override
 		public void process(Object1 msg) {
