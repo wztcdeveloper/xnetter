@@ -12,8 +12,8 @@ import xnetter.utils.ObjectPool;
 
 /**
  * UDP是无连接的，服务器启动单线程监听端口并接收数据
- * 为了服务器处理性能，用RecvHandler来接收数据，并从对象池handlers里面获取一个Handler，
- * 扔到线程池里面去执行
+ * 为了提高服务器处理性能，用RecvHandler来接收数据，
+ * 并从对象池handlers里面获取一个Handler，扔到线程池里面去执行
  * @author majikang
  * @create 2019-12-25
  */
