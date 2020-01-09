@@ -17,19 +17,19 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import xnetter.http.core.annotation.Request;
-import xnetter.http.core.annotation.Response;
+import xnetter.http.annotation.Request;
+import xnetter.http.annotation.Response;
 import xnetter.http.core.HttpRouter.ActionContext;
 import xnetter.http.core.HttpRouter.ActionHolder;
-import xnetter.http.core.utils.HttpHeader;
-import xnetter.http.core.utils.ResponseUtil;
+import xnetter.http.utils.HttpHeader;
+import xnetter.http.utils.ResponseUtil;
 import xnetter.http.data.decode.Decoder;
 import xnetter.http.data.encode.Encoder;
 import xnetter.http.wsock.WSockAction;
 import xnetter.http.wsock.WSockHandler;
 import xnetter.utils.DumpUtil;
 /**
- * 将所有HTTP/HTTPS请求分发给相应的Action
+ * 将所有HTTP请求分发给相应的Action
  * @author majikang
  * @create 2019-11-05
  */
@@ -41,11 +41,11 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     private static final String CONNECTION_CLOSE = "close";
 
-    private final int port;
+    private final HttpConf conf;
 	private final HttpRouter router;
 	
-	public HttpHandler(int port, HttpRouter router) {
-		this.port = port;
+	public HttpHandler(HttpConf conf, HttpRouter router) {
+		this.conf = conf;
 		this.router = router;
 	}
 
@@ -77,7 +77,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
     }
 
 	/**
-	 * 如果是HTTP/HTTPS请求，则开始分发给Action
+	 * 如果是HTTP请求，则开始分发给Action
 	 * @param ctx
 	 * @param request
 	 * @throws Exception
@@ -115,7 +115,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 			throw new RuntimeException(String.format("wsock action doesn't exist for name: %s", request.uri()));
 		}
 		
-		String wsUrl = String.format("ws://0.0.0.0:%d/%s", port, holder.name);
+		String wsUrl = getWebSocketUrl(holder);
 		WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(wsUrl, null, false);
 		WebSocketServerHandshaker handshaker = factory.newHandshaker(request);
         if (handshaker == null) {
@@ -146,13 +146,13 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	private void writeResponse(HttpRequest request, FullHttpResponse response, Channel channel, boolean forceClose) {
 		boolean close = isClose(request);
 		if(!close && !forceClose){
-			response.headers().add(HttpHeader.CONTENT_LENGTH, String.valueOf(response.content().readableBytes()));
+			response.headers().set(HttpHeader.CONTENT_LENGTH, response.content().readableBytes());
 		}
 		
 		logger.debug("send to {}: {}", channel.remoteAddress().toString(), 
 				response.content().toString(StandardCharsets.UTF_8));
 		
-		ChannelFuture future = channel.write(response);
+		ChannelFuture future = channel.writeAndFlush(response);
 		if(close || forceClose){
 			future.addListener(ChannelFutureListener.CLOSE);
 		}
@@ -186,6 +186,14 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 			return Request.Type.TRACE;
 		} else {
 			return Request.Type.POST;
+		}
+	}
+
+	private String getWebSocketUrl(ActionHolder holder) {
+		if (conf.sslEnabled) {
+			return String.format("wss://0.0.0.0:%d/%s", conf.port, holder.name);
+		} else {
+			return String.format("ws://0.0.0.0:%d/%s", conf.port, holder.name);
 		}
 	}
 }

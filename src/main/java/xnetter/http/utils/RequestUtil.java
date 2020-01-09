@@ -1,9 +1,9 @@
-package xnetter.http.core.utils;
+package xnetter.http.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 对HTTP/HTTPS请求的处理工具
+ * 对HTTP请求的处理工具
  * @author majikang
  * @create 2019-11-05
  */

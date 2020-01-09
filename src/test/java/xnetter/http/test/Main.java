@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import xnetter.http.core.HttpConf;
 import xnetter.http.core.HttpRouter;
 import xnetter.http.core.HttpServer;
 import xnetter.sock.core.Action;
@@ -19,55 +20,20 @@ import xnetter.utils.ReflectUtil;
  *
  */
 public class Main {
-	public static class Object1 extends Protocol {
 
-		@Override
-		public void marshal(Octets bs) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void unmarshal(Octets bs) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public IMarshal newObject() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public int getTypeId() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-		
+	private static HttpConf makeConf(int port) {
+		String keyFile = Main.class.getResource("/netter.keystore").getPath();
+		return new HttpConf(port, true, keyFile,
+				"654321", "123456");
 	}
-	
-	public static class AP implements Action<Object1> {
 
-		@Override
-		public void process(Object1 msg) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
-	
     public static void main(String[] args) {
     	try {
-    		AP ap = new AP();
-
-    		Class<?> Object1Class = Object1.class;
-    		Class<Protocol> pClass = (Class<Protocol>)Object1Class;
+    		String logFile = HttpServer.class.getResource("/log4j.properties").getFile();
+    		PropertyConfigurator.configure(logFile);
     		
-    		String path = HttpServer.class.getResource("/").getPath();
-    		PropertyConfigurator.configure(path + "/log4j.properties");
-    		
-    		new HttpServer(5555, "xnetter.http.test").start();
+    		//new HttpServer(5555, "xnetter.http.test").start();
+			new HttpServer(makeConf(5555), "xnetter.http.test").start();
 
     		while (true) {
     			Thread.sleep(100);

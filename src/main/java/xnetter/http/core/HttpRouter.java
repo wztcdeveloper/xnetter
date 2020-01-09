@@ -16,9 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import xnetter.http.core.annotation.Action;
-import xnetter.http.core.annotation.Request;
-import xnetter.http.core.utils.RequestUtil;
+import xnetter.http.annotation.Action;
+import xnetter.http.annotation.Request;
+import xnetter.http.utils.RequestUtil;
 import xnetter.utils.ClassScaner;
 import xnetter.utils.DumpUtil;
 import xnetter.utils.ReflectUtil;
@@ -35,7 +35,7 @@ public final class HttpRouter {
 	public static final String PATH_SEPARATOR = "/";
 
 	/**
-	 * HTTP/HTTPS请求的响应路径
+	 * HTTP请求的响应路径
 	 */
 	public static class Path {
 		// 路径的完整URL

@@ -24,9 +24,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import xnetter.http.core.HttpRouter;
-import xnetter.http.core.annotation.ParamVariable;
-import xnetter.http.core.annotation.PathVariable;
-import xnetter.http.core.utils.RequestUtil;
+import xnetter.http.annotation.ParamVariable;
+import xnetter.http.annotation.PathVariable;
+import xnetter.http.utils.RequestUtil;
 import xnetter.http.data.decode.Decoder;
 import xnetter.http.type.TType;
 

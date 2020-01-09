@@ -1,11 +1,11 @@
 package xnetter.http.core;
 
 
+import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -16,19 +16,21 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import xnetter.http.ssl.SslFactory;
 
 import java.io.IOException;
 
 /**
- * 启动HTTP/HTTPS服务器
+ * 启动HTTP服务器
  * @author majikang
  */
 public final class HttpServer {
 	private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
-	private final int port;
+	private final HttpConf conf;
 	private final HttpRouter router;
 	private ServerChannel serverChannel;
+    private SslFactory sslFactory;
 
     /**
      * 监听端口port, 并且自动扫描和注册actionPackages下的所有Action
@@ -42,8 +44,22 @@ public final class HttpServer {
 	}
 
     public HttpServer(final int port, final HttpRouter router) {
-        this.port = port;
+        this(new HttpConf(port), router);
+    }
+
+    public HttpServer(final HttpConf conf, final String... actionPackages)
+            throws ClassNotFoundException, InstantiationException,
+            IllegalAccessException, IOException {
+        this(conf, new HttpRouter(actionPackages));
+    }
+
+    public HttpServer(final HttpConf conf, final HttpRouter router) {
+        this.conf = conf;
         this.router = router;
+
+        if (this.conf.sslEnabled) {
+            this.sslFactory = new SslFactory(this.conf);
+        }
     }
 
     public void start() throws InterruptedException {
@@ -55,12 +71,17 @@ public final class HttpServer {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
             	  ChannelPipeline ph = ch.pipeline();
-            	  // 把单个HTTP/HTTPS请求转为FullHttpRequest或FullHttpResponse
+            	  // 把单个HTTP请求转为FullHttpRequest或FullHttpResponse
                   ph.addLast("encoder", new HttpResponseEncoder());
                   ph.addLast("decoder", new HttpRequestDecoder());
                   ph.addLast("aggregator", new HttpObjectAggregator(10*1024*1024));
-                  // 所有的HTTP/HTTPS请求，都由HttpHandler来处理
-                  ph.addLast("dispatcher",  new HttpHandler(port, router));
+                  // 所有的HTTP请求，都由HttpHandler来处理
+                  ph.addLast("dispatcher",  new HttpHandler(conf, router));
+
+                  if (sslFactory != null) {
+                      // 如果使用https，则必须放到第一位
+                      ph.addFirst("sslHandler", new SslHandler(sslFactory.createSSLEngine()));
+                  }
             }
     	};
     	
@@ -69,8 +90,8 @@ public final class HttpServer {
         	.childHandler(initializer);
     	
         // 服务器绑定端口监听
-        serverChannel = (ServerChannel)bootstrap.bind(port).sync().channel();
-        logger.info("Netty-http server is listening on port: {}", port);
+        serverChannel = (ServerChannel)bootstrap.bind(conf.port).sync().channel();
+        logger.info("Netty-http server is listening on port: {}", conf.port);
     }
     
     public void close() {

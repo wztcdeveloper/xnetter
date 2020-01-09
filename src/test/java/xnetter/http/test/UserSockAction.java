@@ -4,10 +4,10 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import xnetter.http.core.annotation.Action;
-import xnetter.http.core.annotation.PathVariable;
-import xnetter.http.core.annotation.Request;
-import xnetter.http.core.annotation.Response;
+import xnetter.http.annotation.Action;
+import xnetter.http.annotation.PathVariable;
+import xnetter.http.annotation.Request;
+import xnetter.http.annotation.Response;
 import xnetter.http.wsock.WSockAction;
 import xnetter.http.wsock.WSockHandler;
 

@@ -9,7 +9,7 @@
 
 2 http
     通过HttpServer启动http服务器，该服务会自动扫描Action路径下的所有类进行注册。下面是http
-请求的整个流程。
+请求的整个流程。已经支持https，通过HttpConf去配置。
     HttpClient(WEB) -> HttpHandler -> HttpRouter -> Decode -> Encode -> Action
     HttpServer接收到客户端的连接，都会启动一个新的HttpHandler。当HttpHandler接收到客户端
 数据请求，会根据请求路径找HttpRouter查询相应的Action。调用Decoder对Request请求参数和请求内
@@ -25,6 +25,7 @@
 这里的Action需要实现接口WSockAction。websocket初始化时，由HttpClient发起Get请求，其中Headers
 里面包含“Upgrade”=“websocket”的键值对。这时服务器需要启动握手流程，并且把从网络处理里面把
 HttpHandler移除，加入新的WSockHandler。以后数据通信就由WSockHandler负责了。
+    已经支持wss，通过HttpConf去配置。
 
 4 tcp
     通过继承Server来启动服务器，继承Client来启动客户端。这里需要涉及到的配置参数由Manager.Conf
@@ -48,8 +49,7 @@ udp是无连接的，客户端发送数据总是向指定的IP和端口发送，
     注意：udp是无连接的，所以服务器发送数据只能原路返回。
 
 TODO LIST
-1 http支持https、websocket支持wss
-2 tcp和udp支持数据加解密
-3 http/https参数校验
-4 http/https支持文件上传、文件下载
-5 考虑其他协议的实现
+1 tcp和udp支持数据加解密
+2 http参数校验
+3 http支持文件上传、文件下载
+4 考虑其他协议的实现

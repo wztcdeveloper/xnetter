@@ -1,4 +1,4 @@
-package xnetter.http.core.annotation;
+package xnetter.http.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -7,15 +7,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * ParamVariable 从请求参数和请求内容中获取变量
+ * Request 处理HTTP请求
  * @author majikang
  * @create 2019-11-05
  */
 
-@Target({ElementType.PARAMETER, ElementType.FIELD})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ParamVariable {
+public @interface Request {
 
-	String name();
+	String name() default "";
+	
+	/**
+	 * http 请求类型
+	 */
+	public enum Type {
+		GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS, TRACE
+	}
+	
+	Type[] type() default {Type.POST};
 }

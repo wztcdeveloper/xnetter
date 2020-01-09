@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import xnetter.http.core.annotation.Action;
-import xnetter.http.core.annotation.ParamVariable;
-import xnetter.http.core.annotation.PathVariable;
-import xnetter.http.core.annotation.Request;
-import xnetter.http.core.annotation.Response;
+import xnetter.http.annotation.Action;
+import xnetter.http.annotation.ParamVariable;
+import xnetter.http.annotation.PathVariable;
+import xnetter.http.annotation.Request;
+import xnetter.http.annotation.Response;
 
 @Action(name="/user")
 public class UserAction {

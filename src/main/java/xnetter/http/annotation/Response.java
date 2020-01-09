@@ -1,4 +1,4 @@
-package xnetter.http.core.annotation;
+package xnetter.http.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Request 处理HTTP/HTTPS请求
+ * Response 对HTTP请求的响应
  * @author majikang
  * @create 2019-11-05
  */
@@ -15,16 +15,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Request {
-
-	String name() default "";
+public @interface Response {
 	
-	/**
-	 * http 请求类型
-	 */
 	public enum Type {
-		GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS, TRACE
+		JSON, TEXT, XML, HTML
 	}
 	
-	Type[] type() default {Type.POST};
+	Type value() default Type.JSON;
+	
 }

@@ -1,6 +1,6 @@
-package xnetter.http.core.utils;
+package xnetter.http.utils;
 
-import xnetter.http.core.annotation.Response;
+import xnetter.http.annotation.Response;
 import xnetter.http.type.TType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 
 /**
- * 对HTTP/HTTPS请求的响应处理工具
+ * 对HTTP请求的响应处理工具
  * @author majikang
  * @create 2019-11-05
  */
@@ -88,8 +88,8 @@ public final class ResponseUtil {
 		ByteBuf byteBuf = Unpooled.wrappedBuffer(message.getBytes());
 		FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, 
 				HttpResponseStatus.OK, byteBuf);
-		response.headers().add(HttpHeader.CONTENT_TYPE, contentType);
-		response.headers().add(HttpHeader.CONTENT_LENGTH, String.valueOf(byteBuf.readableBytes()));
+		response.headers().set(HttpHeader.CONTENT_TYPE, contentType);
+		response.headers().set(HttpHeader.CONTENT_LENGTH, byteBuf.readableBytes());
 		return response;
 	}
 }

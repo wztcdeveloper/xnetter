@@ -1,6 +1,6 @@
 package xnetter.http.test;
 
-import xnetter.http.core.annotation.ParamVariable;
+import xnetter.http.annotation.ParamVariable;
 
 public class UserBean {
 	
