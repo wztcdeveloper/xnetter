@@ -29,6 +29,19 @@ public class Octets {
         this(new byte[initCapacity], 0, 0);
     }
 
+    public Octets(byte[] data) {
+        this(data, 0, data.length);
+    }
+
+    public Octets(Octets os) {
+        this.data = new byte[os.capacity];
+        System.arraycopy(os.data, os.beginPos, this.data, os.beginPos,
+                os.endPos - os.beginPos);
+        this.beginPos = os.beginPos;
+        this.endPos = os.endPos;
+        this.capacity = os.capacity;
+    }
+
     private Octets(byte[] data, int beginPos, int endPos) {
         this.data = data;
         this.beginPos = beginPos;
@@ -44,17 +57,48 @@ public class Octets {
         return new Octets(bytes, beginPos, beginPos + len);
     }
 
-    public void replace(byte[] data, int beginPos, int endPos) {
+    private byte[] roundup(int size) {
+        int capacity = 16;
+        while (size > capacity) {
+            capacity <<= 1;
+        }
+        return new byte[capacity];
+    }
+
+    public void reserve(int size) {
+        if (data == null) {
+            data = roundup(size);
+        } else if (size > data.length) {
+            byte[] tmp = roundup(size);
+            System.arraycopy(data, beginPos, tmp, beginPos, endPos - beginPos);
+            data = tmp;
+        }
+        capacity = data.length;
+    }
+
+    public void resize(int size) {
+        reserve(size);
+    }
+
+    public Octets replace(byte[] data, int beginPos, int endPos) {
         this.data = data;
         this.beginPos = beginPos;
         this.endPos = endPos;
         this.capacity = data.length;
+        return this;
     }
 
-    public void replace(byte[] data) {
-        this.data = data;
-        this.beginPos = 0;
-        this.endPos = this.capacity = data.length;
+    public Octets replace(byte[] data) {
+        replace(data, 0, data.length);
+        return this;
+    }
+
+    public byte getByte(int pos) {
+        return data[pos];
+    }
+
+    public void setByte(int pos, byte b) {
+        data[pos] = b;
     }
 
     public void sureRead(int n) {
@@ -595,6 +639,7 @@ public class Octets {
         return Arrays.copyOfRange(data, beginPos, endPos);
     }
 
+    @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
         for (int i = beginPos; i < endPos; i++) {
@@ -642,6 +687,11 @@ public class Octets {
 
     public static Octets fromJsonString(String value) {
         return fromString(value);
+    }
+
+    @Override
+    public Object clone() {
+        return new Octets(this);
     }
 
     @Override

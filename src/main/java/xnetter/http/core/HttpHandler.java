@@ -82,8 +82,8 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	 * @param request
 	 * @throws Exception
 	 */
-	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest request) 
-			throws Exception {
+	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest request)
+			throws Exception ,OutOfMemoryError{
 		Request.Type requestType = getType(request.method());
 		ActionContext context = router.newAction(request.uri(), requestType);
 		
