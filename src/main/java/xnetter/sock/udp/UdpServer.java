@@ -29,7 +29,7 @@ public abstract class UdpServer extends Manager {
 	private Channel serverChannel;
 	
     protected UdpServer(Conf conf) {
-    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.procPackageName), 
+    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.actionPackageName),
     			Coder.Factory.DEFAULT, UdpHandler.DEFAULT);
     }
     
@@ -51,8 +51,8 @@ public abstract class UdpServer extends Manager {
                  cc.setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(65535));
                  
                  ChannelPipeline pipeline = ch.pipeline();
-                 pipeline.addLast("handler", new RecvHandler(UdpServer.this));
-                 //pipeline.addLast("handler", handlerFactory.create(0, UdpServer.this));
+                 //pipeline.addLast("handler", new RecvHandler(UdpServer.this));
+                 pipeline.addLast("handler", handlerFactory.create(0, UdpServer.this));
             }
     	};
     	

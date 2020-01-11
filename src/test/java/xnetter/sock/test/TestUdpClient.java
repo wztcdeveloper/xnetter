@@ -15,6 +15,7 @@ import xnetter.http.core.HttpServer;
 import xnetter.sock.core.Dispatcher;
 import xnetter.sock.core.Handler;
 import xnetter.sock.protocol.Protocol;
+import xnetter.sock.security.Security;
 import xnetter.sock.udp.UdpClient;
 
 public class TestUdpClient extends UdpClient {
@@ -77,8 +78,8 @@ public class TestUdpClient extends UdpClient {
 	}
 	
 	public static void main(String[] args) {
-		String path = HttpServer.class.getResource("/").getPath();
-		PropertyConfigurator.configure(path + "/log4j.properties");
+		String logFile = HttpServer.class.getResource("/log4j.properties").getPath();
+		PropertyConfigurator.configure(logFile);
 		
 		ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 		 
@@ -91,7 +92,10 @@ public class TestUdpClient extends UdpClient {
 	
 	public static void startInThread() {
 		Conf conf = new Conf("127.0.0.1", 1001, "xnetter.sock.test", "xnetter.sock.test");
-    	TestUdpClient client = new TestUdpClient(conf);
+		conf.inSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
+		conf.outSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
+
+		TestUdpClient client = new TestUdpClient(conf);
     	
     	Dispatcher<Protocol> d = ((Dispatcher<Protocol>)client.dispatcher);
 		d.regist(SChallenge.class, (msg) -> {

@@ -38,7 +38,7 @@ public abstract class Client extends Manager {
 	private ScheduledFuture<?> keepAliveFuture;
 	
     protected Client(Conf conf) {
-    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.procPackageName), 
+    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.actionPackageName),
     			Coder.Factory.DEFAULT, Handler.Factory.DEFAULT);
     }
     
@@ -66,7 +66,7 @@ public abstract class Client extends Manager {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                 	 ChannelConfig cc = ch.config();
-                     cc.setOption(ChannelOption.TCP_NODELAY, conf.noDelay);
+                     cc.setOption(ChannelOption.TCP_NODELAY, conf.tcpNoDelay);
                      cc.setOption(ChannelOption.SO_KEEPALIVE, conf.keepAlive);
                      cc.setOption(ChannelOption.SO_SNDBUF, conf.socketSendBuff);
                      cc.setOption(ChannelOption.SO_RCVBUF, conf.socketRecvBuff);
@@ -81,7 +81,7 @@ public abstract class Client extends Manager {
         	};
         	
             bootstrap.group(workGroup).channel(NioSocketChannel.class)
-                    .option(ChannelOption.TCP_NODELAY, conf.noDelay)
+                    .option(ChannelOption.TCP_NODELAY, conf.tcpNoDelay)
                     .option(ChannelOption.SO_SNDBUF, conf.socketSendBuff)
                     .option(ChannelOption.SO_RCVBUF, conf.socketRecvBuff)
                     .option(ChannelOption.SO_KEEPALIVE, true)
@@ -140,7 +140,7 @@ public abstract class Client extends Manager {
             }
 
             // 是否断开重连
-            if (conf.reconnrect && !hasClose) {
+            if (conf.reconnect && !hasClose) {
             	workGroup.schedule(this::doConnect, 
             			conf.reconnectInterval, TimeUnit.SECONDS);
             }

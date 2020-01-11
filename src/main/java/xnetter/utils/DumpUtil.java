@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import io.netty.buffer.ByteBuf;
 import xnetter.http.type.TType;
 
 import com.alibaba.fastjson.JSONArray;
@@ -20,7 +21,34 @@ public final class DumpUtil {
 	private DumpUtil() {
 		
 	}
-	
+
+	public static String toHexString(ByteBuf buf, boolean multiLine) {
+		return toHexString(buf, multiLine, 16);
+	}
+
+	public static String toHexString(ByteBuf buf, boolean multiLine, int lineCount) {
+		StringBuilder b = new StringBuilder();
+		int len = buf.readableBytes();
+		for (int i=0; i<buf.readableBytes(); i++) {
+			b.append(String.format("%02X ", buf.getByte(i)));
+			if (multiLine && ((i + 1) % lineCount == 0 || i == len - 1)) {
+				b.append(System.lineSeparator());
+			}
+		}
+		return b.toString();
+	}
+
+	public static String toHexString(byte[] buf, boolean multiLine, int lineCount) {
+		StringBuilder b = new StringBuilder();
+		for (int i=0; i<buf.length; i++) {
+			b.append(String.format("%02X ", buf[i]));
+			if (multiLine && ((i + 1) % lineCount == 0 || i == buf.length - 1)) {
+				b.append(System.lineSeparator());
+			}
+		}
+		return b.toString();
+	}
+
 	public static String toString(Object[] values) {
 		StringBuilder sb = new StringBuilder();
 		for (Object o : values) {

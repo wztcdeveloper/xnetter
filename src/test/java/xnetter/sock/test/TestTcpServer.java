@@ -1,6 +1,7 @@
 package xnetter.sock.test;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
@@ -12,6 +13,9 @@ import org.slf4j.LoggerFactory;
 import xnetter.http.core.HttpServer;
 import xnetter.sock.core.Handler;
 import xnetter.sock.core.Server;
+import xnetter.sock.marshal.Octets;
+import xnetter.sock.security.Security;
+import xnetter.utils.DumpUtil;
 
 public class TestTcpServer extends Server {
 
@@ -55,11 +59,14 @@ public class TestTcpServer extends Server {
 	}
 
 	public static void main(String[] args) {
-		String path = HttpServer.class.getResource("/").getPath();
-		PropertyConfigurator.configure(path + "/log4j.properties");
+		String logFile = HttpServer.class.getResource("/log4j.properties").getPath();
+		PropertyConfigurator.configure(logFile);
 		
     	Conf conf = new Conf("0.0.0.0", 1001, "xnetter.sock.test", "xnetter.sock.test");
-    	try {
+		conf.outSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
+		conf.inSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
+
+		try {
     		new TestTcpServer(conf).start();
     	} catch (Exception ex) {
     		ex.printStackTrace();

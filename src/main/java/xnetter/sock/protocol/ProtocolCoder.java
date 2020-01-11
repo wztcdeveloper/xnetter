@@ -30,14 +30,14 @@ import xnetter.utils.TimeUtil;
 public class ProtocolCoder extends Coder {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolCoder.class);
+
+    private static final Map<Integer, Protocol> protocols = new HashMap<>();
 	private static final ThreadLocal<Octets> localOss
             = ThreadLocal.withInitial(() -> new Octets(10240));
 	
 	protected final int maxMsgSize;
     protected final Octets inputBuff;
     protected final Octets oneMessageBuff;
-    
-    private final Map<Integer, Protocol> protocols = new HashMap<>();
 
 	public ProtocolCoder(Manager manager, Handler handler, String packageName) {
 		super(manager, handler);
@@ -46,7 +46,7 @@ public class ProtocolCoder extends Coder {
 		this.inputBuff = new Octets(10240);
         this.oneMessageBuff = new Octets();
       
-        if (StringUtils.isNotEmpty(packageName)) {
+        if (protocols.isEmpty() && StringUtils.isNotEmpty(packageName)) {
         	regist(packageName);
         }
 	}

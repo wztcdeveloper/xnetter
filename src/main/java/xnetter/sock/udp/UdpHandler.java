@@ -16,6 +16,7 @@ import xnetter.sock.core.Coder;
 import xnetter.sock.core.Handler;
 import xnetter.sock.core.Manager;
 import xnetter.sock.protocol.ProtocolUdpHandler;
+import xnetter.utils.DumpUtil;
 
 /**
  * UDP处理器, 每个Handler对应一个建立的连接
@@ -49,7 +50,7 @@ public abstract class UdpHandler extends Handler {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
 	@Override
 	public void onRecv(ChannelHandlerContext ctx, Object msg) {
 		// TODO Auto-generated method stub
@@ -59,7 +60,7 @@ public abstract class UdpHandler extends Handler {
 			try {
 				DatagramPacket pack = (DatagramPacket)msg;
 				remoteAddress = pack.sender();
-				
+
 				outs.clear();
 				coder.doDecode(context, pack.content(), outs);
 				pack.release(); // 需要主动释放，否则会内存泄漏

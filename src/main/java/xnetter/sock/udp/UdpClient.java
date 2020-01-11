@@ -42,7 +42,7 @@ public abstract class UdpClient extends Manager {
 	private Channel channel;
 	
     protected UdpClient(Conf conf) {
-    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.procPackageName), 
+    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.actionPackageName),
     			Coder.Factory.DEFAULT, UdpHandler.DEFAULT);
     }
     

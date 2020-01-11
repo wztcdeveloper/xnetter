@@ -59,7 +59,7 @@ public class RecvHandler extends Handler {
 		// TODO Auto-generated method stub
 		try {
 			final ChannelHandlerContext context = ctx;
-			Handler handler = this.handlers.get();
+			final Handler handler = this.handlers.get();
 			if (handler != null) {
 				executor.execute(() -> {
 					handler.onRecv(context, msg);

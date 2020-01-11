@@ -81,10 +81,12 @@ public class Octets {
     }
 
     public Octets replace(byte[] data, int beginPos, int endPos) {
-        this.data = data;
-        this.beginPos = beginPos;
-        this.endPos = endPos;
-        this.capacity = data.length;
+        int size = endPos - beginPos;
+        resize(size);
+        System.arraycopy(data, beginPos, this.data, 0, size);
+        this.beginPos = 0;
+        this.endPos = size;
+        this.capacity = size;
         return this;
     }
 
@@ -92,6 +94,12 @@ public class Octets {
         replace(data, 0, data.length);
         return this;
     }
+
+    public Octets replace(Octets os) {
+        replace(os.array(), 0, os.capacity);
+        return this;
+    }
+
 
     public byte getByte(int pos) {
         return data[pos];

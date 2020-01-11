@@ -2,7 +2,9 @@ package xnetter.sock.security;
 
 import java.util.HashMap;
 
-import xnetter.sock.marshal.Octets;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 加解密算法
@@ -12,22 +14,20 @@ import xnetter.sock.marshal.Octets;
 public abstract class Security implements Cloneable {
 	private static final HashMap<String, Security> map = new HashMap<String, Security>() {{
 		put("NullSecurity".toUpperCase(), new NullSecurity());
-		put("MD5Hash".toUpperCase(), new MD5Hash());
-		put("HMAC_MD5Hash".toUpperCase(), new HMAC_MD5Hash());
-		put("ARCFourSecurity".toUpperCase(), new ARCFourSecurity());
+		put("RC4Security".toUpperCase(), new RC4Security());
 	}};
 
-	public void setParameter(Octets o) {
+	public void setParameter(ByteBuf o) {
 	}
 
-	public void getParameter(Octets o) {
+	public void getParameter(ByteBuf o) {
 	}
 
-	public Octets doUpdate(Octets o) {
+	public ByteBuf doUpdate(ByteBuf o) {
 		return o;
 	}
 
-	public Octets doFinal(Octets o) {
+	public ByteBuf doFinal(ByteBuf o) {
 		return o;
 	}
 
@@ -41,8 +41,27 @@ public abstract class Security implements Cloneable {
 		return null;
 	}
 
+	public Security copied() {
+		return (Security)this.clone();
+	}
+
 	public static Security create(String name) {
+		return create(name, "");
+	}
+
+	public static Security create(String name, String param) {
+		Security cloned = null;
+
 		Security stub = map.get(name.toUpperCase());
-		return stub == null ? new NullSecurity() : (Security) stub.clone();
+		if (stub != null) {
+			cloned = (Security) stub.clone();
+		} else {
+			cloned = new NullSecurity();
+		}
+
+		if (StringUtils.isNotEmpty(param)) {
+			cloned.setParameter(Unpooled.copiedBuffer(param.getBytes()));
+		}
+		return cloned;
 	}
 }

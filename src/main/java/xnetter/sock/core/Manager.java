@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import com.alibaba.fastjson.JSON;
 
 import xnetter.sock.marshal.Octets;
+import xnetter.sock.security.Security;
 
 /**
  * 所有网络连接的基类
@@ -128,19 +129,26 @@ public abstract class Manager {
     public static class Conf {
 		 public final String ip;
 	     public final int port;
+	     // 定义客户端和服务器通信消息的路径
 	     public final String msgPackageName;
-	     public final String procPackageName;
-	     
+	     // 定义Action的路径，Action是处理消息的业务逻辑
+	     public final String actionPackageName;
+
+	     public Security inSecurity; 	// 输入加密算法
+	     public Security outSecurity;	// 输出加密算法
+
+	     public boolean tcpNoDelay = false;
+	     public int backlog = 1000;
 	     public boolean keepAlive = true;
-	     public boolean noDelay = false;
-	     public int backlog = 100;
+		 // 如果keepAlive=true，超过这个时间还没收到心跳包，则关闭连接
+	     public int expireTime = 60; 		// second
 
 	     public int socketSendBuff = 16 * 1024;
 	     public int socketRecvBuff = 16 * 1024;
 	     public int maxMsgSize = 64 * 1024;
 
-	     public int expireTime = 60; 		// second
-	     public boolean reconnrect = true;	// for client
+	     // 客户端是否断线重连
+	     public boolean reconnect = true;	// for client
 	     public int reconnectInterval = 1; 	// second (for client)
 	     
 	     public Conf(int port) {
@@ -159,7 +167,7 @@ public abstract class Manager {
 	    	 this.ip = ip;
 	    	 this.port = port;
 	    	 this.msgPackageName = msgPackageName;
-	    	 this.procPackageName = procPackageName;
+	    	 this.actionPackageName = procPackageName;
 	     }
 	     
 	     public String toJsonString() {

@@ -38,7 +38,7 @@ public abstract class Server extends Manager {
     private Map<Long, Handler> handlers = new ConcurrentHashMap<>();
     
     protected Server(Conf conf) {
-    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.procPackageName), 
+    	this(conf, Dispatcher.Factory.DEFAULT.create(conf.actionPackageName),
     			Coder.Factory.DEFAULT, Handler.Factory.DEFAULT);
     }
     
@@ -59,7 +59,7 @@ public abstract class Server extends Manager {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
             	 ChannelConfig cc = ch.config();
-                 cc.setOption(ChannelOption.TCP_NODELAY, conf.noDelay);
+                 cc.setOption(ChannelOption.TCP_NODELAY, conf.tcpNoDelay);
                  cc.setOption(ChannelOption.SO_KEEPALIVE, conf.keepAlive);
                  cc.setOption(ChannelOption.SO_SNDBUF, conf.socketSendBuff);
                  cc.setOption(ChannelOption.SO_RCVBUF, conf.socketRecvBuff);

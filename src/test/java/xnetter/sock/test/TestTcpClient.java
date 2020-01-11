@@ -16,6 +16,7 @@ import xnetter.sock.core.Client;
 import xnetter.sock.core.Dispatcher;
 import xnetter.sock.core.Handler;
 import xnetter.sock.protocol.Protocol;
+import xnetter.sock.security.Security;
 import xnetter.utils.TimeUtil;
 
 public class TestTcpClient extends Client {
@@ -61,8 +62,8 @@ public class TestTcpClient extends Client {
 	}
 	
 	public static void main(String[] args) {
-		String path = HttpServer.class.getResource("/").getPath();
-		PropertyConfigurator.configure(path + "/log4j.properties");
+		String logFile = HttpServer.class.getResource("/log4j.properties").getPath();
+		PropertyConfigurator.configure(logFile);
 		ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 		 
 		for (int i=0; i<10; i++) {
@@ -73,7 +74,10 @@ public class TestTcpClient extends Client {
 	}
 	
 	private static void startInThread() {
-    	Conf conf = new Conf("192.168.1.105", 1001, "xnetter.sock.test", "xnetter.sock.test");
+    	Conf conf = new Conf("127.0.0.1", 1001, "xnetter.sock.test", "xnetter.sock.test");
+		conf.inSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
+		conf.outSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
+
     	TestTcpClient client = new TestTcpClient(conf);
     	
     	Dispatcher<Protocol> d = ((Dispatcher<Protocol>)client.dispatcher);
