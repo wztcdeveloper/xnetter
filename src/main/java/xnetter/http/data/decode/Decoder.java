@@ -85,7 +85,7 @@ public abstract class Decoder {
 			decoder = new UrlDecoder();
 		} else if (request.method().equals(HttpMethod.POST)) {
 			decoder = new UrlDecoder();
-			
+
 			String contentType = getContentType(request);
 			if (contentType.contains("application/json")){
 				decoder.setNext(new JsonDecoder());

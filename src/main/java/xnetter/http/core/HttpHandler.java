@@ -2,6 +2,8 @@ package xnetter.http.core;
 
 import java.nio.charset.StandardCharsets;
 
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,11 +12,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import xnetter.http.annotation.Request;
@@ -34,16 +31,23 @@ import xnetter.utils.DumpUtil;
  * @create 2019-11-05
  */
 
-public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public final class HttpHandler extends SimpleChannelInboundHandler<HttpObject> {
 
 	private static Logger logger = LoggerFactory.getLogger(HttpHandler.class);
-	
+
 	private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     private static final String CONNECTION_CLOSE = "close";
 
+	 //  Disk if size exceed
+	private static final HttpDataFactory factory =
+			new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
+
     private final HttpConf conf;
 	private final HttpRouter router;
-	
+
+	private boolean readChunks;
+	private HttpPostRequestDecoder decoder;
+
 	public HttpHandler(HttpConf conf, HttpRouter router) {
 		this.conf = conf;
 		this.router = router;
@@ -55,10 +59,27 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
     }
 	
 	@Override
-	public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception{
+	public void channelRead0(ChannelHandlerContext ctx, HttpObject request) throws Exception{
+		if (request instanceof FullHttpRequest) {
+			handlerHttpRequest(ctx, (FullHttpRequest)request);
+		} else if (request instanceof HttpContent) {
+			handleHttpContent(ctx, (HttpContent) request);
+		}
+	}
+		
+	@Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
+    }
+
+    private void handlerHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request) {
 		logger.debug("recv from {}: {}", ctx.channel().remoteAddress().toString(), request.uri());
 		logger.debug("recv content: \n{}", request.content().toString(StandardCharsets.UTF_8));
-		
+
+		decoder = new HttpPostRequestDecoder(factory, request);
+		readChunks = HttpUtil.isTransferEncodingChunked(request);
+
 		try {
 			if ("websocket".equalsIgnoreCase(request.headers().get("Upgrade"))) {
 				handleWebsocket(ctx, request);
@@ -69,12 +90,24 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 			writeResponse(request, ResponseUtil.buildError(ex), ctx.channel(), true);
 		}
 	}
-		
-	@Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
-        ctx.close();
-    }
+
+	private void handleHttpContent(ChannelHandlerContext ctx, HttpContent request) {
+		if (decoder.isMultipart()) {
+			decoder.offer(request);
+		}
+
+		while (decoder.hasNext()) {
+			InterfaceHttpData data = decoder.next();
+			if (data != null) {
+				if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
+					FileUpload file = (FileUpload) data;
+					if (file.isCompleted()) {
+						decoder.destroy();
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * 如果是HTTP请求，则开始分发给Action
@@ -86,12 +119,12 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 			throws Exception ,OutOfMemoryError{
 		Request.Type requestType = getType(request.method());
 		ActionContext context = router.newAction(request.uri(), requestType);
-		
+
 		if (context == null) {
 			writeResponse(request, ResponseUtil.buildNotFound(request.uri()), ctx.channel(), true);
 			return;
-		} 
-		
+		}
+
 		Object[] params = new Encoder(request, context.path)
 			.encode(context.requestName, Decoder.decode(request));
 		logger.debug("params(count={})", params.length);
@@ -108,7 +141,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	 * @param request
 	 * @throws Exception
 	 */
-	private void handleWebsocket(ChannelHandlerContext ctx, FullHttpRequest request) 
+	private void handleWebsocket(ChannelHandlerContext ctx, FullHttpRequest request)
 			throws Exception {
 		ActionHolder holder = router.getAction(request.uri());
 		if (holder == null || !(holder.action instanceof WSockAction)) {
