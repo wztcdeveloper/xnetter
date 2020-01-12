@@ -106,7 +106,7 @@ public abstract class Client extends Manager {
 
             // 是否保持心跳
             if (conf.keepAlive) {
-                long sendInterval = Math.max(conf.expireTime / 2, 1);
+                long sendInterval = Math.max(conf.sendInterval, 1);
                 keepAliveFuture = workGroup.scheduleWithFixedDelay(this::doKeepAlive, 
                 		sendInterval, sendInterval, TimeUnit.SECONDS);
             }

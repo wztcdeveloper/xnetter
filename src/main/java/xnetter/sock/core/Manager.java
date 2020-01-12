@@ -150,8 +150,10 @@ public abstract class Manager {
 	     public boolean tcpNoDelay = false;
 	     public int backlog = 1000;
 	     public boolean keepAlive = true;
-		 // 如果keepAlive=true，超过这个时间还没收到心跳包，则关闭连接
-	     public int expireTime = 60; 		// second
+	     // 心跳包发送间隔
+	     public int sendInterval = 10;		// unit: second
+		 // 超过这个时间还没收到心跳包，则关闭连接
+	     public int expireTime = 300; 		// unit: second
 
 	     public int socketSendBuff = 16 * 1024;
 	     public int socketRecvBuff = 16 * 1024;
