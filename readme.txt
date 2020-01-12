@@ -1,7 +1,7 @@
     xnetter是基于netty的网络架构，目的是简单易用。
     用户只需要关心基础数据和业务逻辑，对网络通信的过程、网络数据的编解码、加解密、路由转发无
-需关心。目前实现了http/https、websocket/wss、tcp和udp网络过程的封装。其中tcp和udp支持加
-解密， 只不过目前加密算法只有RC4，后面再扩展其他的。
+需关心。目前实现了http/https、websocket/wss、tcp和udp网络过程的封装。其中tcp支持SSL，tcp和udp
+支持其他加解密， 只不过目前加密算法只有RC4，后面再扩展其他的。
 
 1 netty介绍
     netty是jboss提供的一个java开源框架，netty提供异步的、事件驱动的网络应用程序框架和工具，
