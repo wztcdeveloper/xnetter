@@ -1,5 +1,6 @@
 package xnetter.sock.udp;
 
+import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +52,8 @@ public abstract class UdpServer extends Manager {
                  cc.setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(65535));
                  
                  ChannelPipeline pipeline = ch.pipeline();
-                 //pipeline.addLast("handler", new RecvHandler(UdpServer.this));
-                 pipeline.addLast("handler", handlerFactory.create(0, UdpServer.this));
+                 pipeline.addLast("handler", new RecvHandler(UdpServer.this));
+                 //pipeline.addLast("handler", handlerFactory.create(0, UdpServer.this));
             }
     	};
     	

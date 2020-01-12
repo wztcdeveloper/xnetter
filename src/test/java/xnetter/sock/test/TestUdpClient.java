@@ -11,6 +11,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xnetter.Utils;
 import xnetter.http.core.HttpServer;
 import xnetter.sock.core.Dispatcher;
 import xnetter.sock.core.Handler;
@@ -99,13 +100,14 @@ public class TestUdpClient extends UdpClient {
     	
     	Dispatcher<Protocol> d = ((Dispatcher<Protocol>)client.dispatcher);
 		d.regist(SChallenge.class, (msg) -> {
-			try {
-				TimeUnit.MILLISECONDS.sleep(100);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			
-			client.send(new CChallenge(msg.index + 1));
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            client.send(new CChallenge(msg.index + 1));
 		});
 		
 		

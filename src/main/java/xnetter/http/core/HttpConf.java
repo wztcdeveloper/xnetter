@@ -3,20 +3,20 @@ package xnetter.http.core;
 public final class HttpConf {
     public final int port;
     public final boolean sslEnabled;
-    public final String keystorePath;
-    public final String keystorePassword;
-    public final String certificatePassword;
+    public final String ksPath;
+    public final String ksPassword;
+    public final String certPassword;
 
     public HttpConf(int port) {
         this(port, false, "", "", "");
     }
 
-    public HttpConf(int port, boolean sslEnabled, String keystorePath,
-                    String keystorePassword, String certificatePassword) {
+    public HttpConf(int port, boolean sslEnabled, String ksPath,
+                    String ksPassword, String certPassword) {
         this.port = port;
         this.sslEnabled = sslEnabled;
-        this.keystorePath = keystorePath;
-        this.keystorePassword = keystorePassword;
-        this.certificatePassword = certificatePassword;
+        this.ksPath = ksPath;
+        this.ksPassword = ksPassword;
+        this.certPassword = certPassword;
     }
 }

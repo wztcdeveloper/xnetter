@@ -11,6 +11,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xnetter.Utils;
 import xnetter.http.core.HttpServer;
 import xnetter.sock.core.Client;
 import xnetter.sock.core.Dispatcher;
@@ -75,17 +76,17 @@ public class TestTcpClient extends Client {
 	
 	private static void startInThread() {
     	Conf conf = new Conf("127.0.0.1", 1001, "xnetter.sock.test", "xnetter.sock.test");
-		conf.inSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
-		conf.outSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
-
+		//conf.inSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
+		//conf.outSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
+		Utils.supportSsl(conf);
     	TestTcpClient client = new TestTcpClient(conf);
-    	
+
     	Dispatcher<Protocol> d = ((Dispatcher<Protocol>)client.dispatcher);
 		d.regist(SChallenge.class, (msg) -> {
 			
 			try {
 				TimeUnit.MILLISECONDS.sleep(100);
-			} catch (Exception ex) {
+			} catch (InterruptedException ex) {
 				ex.printStackTrace();
 			}
 			

@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 import com.alibaba.fastjson.JSON;
 
+import xnetter.http.ssl.SslFactory;
 import xnetter.sock.marshal.Octets;
 import xnetter.sock.security.Security;
 
@@ -38,14 +39,15 @@ public abstract class Manager {
 	 * 处理器是建立连接之后才创建，所以需要工厂
 	 */
 	public final Handler.Factory handlerFactory;
-	
-	protected Manager(Conf conf, Dispatcher<?> dispatcher, 
+
+
+	protected Manager(Conf conf, Dispatcher<?> dispatcher,
 			Coder.Factory coderFactory, Handler.Factory handlerFactory) {
 		this.conf = conf;
 		this.dispatcher = dispatcher;
 		this.coderFactory = coderFactory;
 		this.handlerFactory = handlerFactory;
-	}
+    }
 
 	/**
 	 * 建立连接之后调用
@@ -134,8 +136,16 @@ public abstract class Manager {
 	     // 定义Action的路径，Action是处理消息的业务逻辑
 	     public final String actionPackageName;
 
-	     public Security inSecurity; 	// 输入加密算法
-	     public Security outSecurity;	// 输出加密算法
+	     // 普通加解密算法
+	     public Security inSecurity;
+	     public Security outSecurity;
+
+	     // SSL加解密算法
+	     public boolean sslEnabled;
+	     public String ksPath;
+	     public String ksPassword;
+	     // 服务器需要设置，客户端保持为空
+	     public String certPassword;
 
 	     public boolean tcpNoDelay = false;
 	     public int backlog = 1000;
@@ -169,7 +179,14 @@ public abstract class Manager {
 	    	 this.msgPackageName = msgPackageName;
 	    	 this.actionPackageName = procPackageName;
 	     }
-	     
+
+	     public void supportSsl(String ksPath, String ksPassword, String certPassword) {
+			 this.sslEnabled = true;
+			 this.ksPath = ksPath;
+			 this.ksPassword = ksPassword;
+			 this.certPassword = certPassword;
+		 }
+
 	     public String toJsonString() {
 	        return JSON.toJSONString(this);
 	    }

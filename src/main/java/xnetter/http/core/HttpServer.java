@@ -58,7 +58,8 @@ public final class HttpServer {
         this.router = router;
 
         if (this.conf.sslEnabled) {
-            this.sslFactory = new SslFactory(this.conf);
+            this.sslFactory = new SslFactory(conf.ksPath,
+                    conf.ksPassword, conf.certPassword);
         }
     }
 
@@ -80,7 +81,7 @@ public final class HttpServer {
 
                   if (sslFactory != null) {
                       // 如果使用https，则必须放到第一位
-                      ph.addFirst("sslHandler", new SslHandler(sslFactory.createSSLEngine()));
+                      ph.addFirst("sslHandler", new SslHandler(sslFactory.newEngine(ch)));
                   }
             }
     	};

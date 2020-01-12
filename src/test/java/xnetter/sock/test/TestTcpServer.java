@@ -10,6 +10,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xnetter.Utils;
 import xnetter.http.core.HttpServer;
 import xnetter.sock.core.Handler;
 import xnetter.sock.core.Server;
@@ -63,12 +64,13 @@ public class TestTcpServer extends Server {
 		PropertyConfigurator.configure(logFile);
 		
     	Conf conf = new Conf("0.0.0.0", 1001, "xnetter.sock.test", "xnetter.sock.test");
-		conf.outSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
-		conf.inSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
+		//conf.outSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
+		//conf.inSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
+		Utils.supportSsl(conf);
 
 		try {
     		new TestTcpServer(conf).start();
-    	} catch (Exception ex) {
+    	} catch (InterruptedException ex) {
     		ex.printStackTrace();
     	}
 	}

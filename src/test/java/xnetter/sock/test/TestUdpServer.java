@@ -8,6 +8,7 @@ import io.netty.util.ResourceLeakDetector;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import xnetter.Utils;
 import xnetter.http.core.HttpServer;
 import xnetter.sock.core.Handler;
 import xnetter.sock.security.Security;
@@ -80,7 +81,7 @@ public class TestUdpServer extends UdpServer {
 		try {
     		 ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
     		new TestUdpServer(conf).start();
-    	} catch (Exception ex) {
+    	} catch (InterruptedException ex) {
     		ex.printStackTrace();
     	}
 	}

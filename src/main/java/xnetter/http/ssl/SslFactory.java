@@ -1,38 +1,52 @@
 package xnetter.http.ssl;
 
+import io.netty.channel.Channel;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xnetter.http.core.HttpConf;
 
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.Security;
 
-public class SslFactory {
+public final class SslFactory {
     private static Logger logger = LoggerFactory.getLogger(SslFactory.class);
-    private static final String PROTOCOL = "SSLv3";
 
-    private final HttpConf conf;
-    private SSLContext sslContext = null;
+    private final String ksPath;
+    private final String ksPassword;
+    private final String certPassword;
+    private SslContext sslContext = null;
 
-    public SslFactory(HttpConf conf) {
-        this.conf = conf;
-        this.init();
+    public SslFactory(String ksPath, String ksPassword) {
+        this(ksPath, ksPassword, "");
     }
 
-    public SSLEngine createSSLEngine() {
-        SSLEngine sslEngine = sslContext.createSSLEngine();
-        sslEngine.setUseClientMode(false);
-        sslEngine.setNeedClientAuth(false);
+    public SslFactory(String ksPath, String ksPassword, String certPassword) {
+        this.ksPath = ksPath;
+        this.ksPassword = ksPassword;
+        this.certPassword = certPassword;
+        this.init(StringUtils.isEmpty(certPassword));
+    }
+
+    public SSLEngine newEngine(Channel ch) {
+        return newEngine(ch, false);
+    }
+
+    public SSLEngine newEngine(Channel ch, boolean client) {
+        SSLEngine sslEngine = sslContext.newEngine(ch.alloc());
+        sslEngine.setUseClientMode(client);
+        sslEngine.setNeedClientAuth(client);
         return sslEngine ;
     }
 
-    private void init() {
+    private void init(boolean client) {
         String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
         if (algorithm == null) {
             algorithm = "SunX509";
@@ -42,11 +56,15 @@ public class SslFactory {
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(getKeyStoreStream(), getKeyStorePassword());
 
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-            kmf.init(ks, getCertificatePassword());
-
-            sslContext = SSLContext.getInstance(PROTOCOL);
-            sslContext.init(kmf.getKeyManagers(), null, null);
+            if (client) {
+                TrustManagerFactory tf = TrustManagerFactory.getInstance(algorithm);
+                tf.init(ks);
+                sslContext = SslContextBuilder.forClient().trustManager(tf).build();
+            } else {
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+                kmf.init(ks, getCertificatePassword());
+                sslContext = SslContextBuilder.forServer(kmf).build();;
+            }
         } catch (Exception e) {
             logger.error("初始化server SSL失败", e);
         }
@@ -55,7 +73,7 @@ public class SslFactory {
     private InputStream getKeyStoreStream() {
         InputStream inStream = null;
         try {
-            inStream = new FileInputStream(conf.keystorePath);
+            inStream = new FileInputStream(ksPath);
         } catch (FileNotFoundException e) {
             logger.error("读取密钥文件失败", e);
         }
@@ -63,18 +81,18 @@ public class SslFactory {
     }
 
     /**
-     * 获取安全证书密码
-     * @return
-     */
-    private char[] getCertificatePassword() {
-        return conf.certificatePassword.toCharArray();
-    }
-
-    /**
      * 获取密钥密码(证书别名密码)
      * @return
      */
     private char[] getKeyStorePassword() {
-        return conf.keystorePassword.toCharArray();
+        return ksPassword.toCharArray();
+    }
+
+    /**
+     * 获取安全证书密码
+     * @return
+     */
+    private char[] getCertificatePassword() {
+        return certPassword.toCharArray();
     }
 }

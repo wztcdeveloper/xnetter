@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xnetter.http.ssl.SslFactory;
 import xnetter.utils.TimeUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelConfig;
@@ -30,13 +32,15 @@ public abstract class Client extends Manager {
 	
     private boolean hasStart;
     private boolean hasClose;
-    
-	private Handler handler;
+    private Handler handler;
+
+    // SSL加解密
+    private final SslFactory sslFactory;
 	private final AtomicLong sessionId;
 	private final Bootstrap bootstrap;
 	private final EventLoopGroup workGroup;
 	private ScheduledFuture<?> keepAliveFuture;
-	
+
     protected Client(Conf conf) {
     	this(conf, Dispatcher.Factory.DEFAULT.create(conf.actionPackageName),
     			Coder.Factory.DEFAULT, Handler.Factory.DEFAULT);
@@ -45,12 +49,18 @@ public abstract class Client extends Manager {
     public Client(Conf conf, Dispatcher<?> dispatcher, 
     		Coder.Factory coderFactory, Handler.Factory handlerFactory) {
     	super(conf, dispatcher, coderFactory, handlerFactory);
-		
+
 		this.hasStart = false;
 		this.hasClose = false;
         this.bootstrap = new Bootstrap();
         this.workGroup = new NioEventLoopGroup();
         this.sessionId = new AtomicLong();
+
+        if (this.conf.sslEnabled) {
+            this.sslFactory = new SslFactory(conf.ksPath, conf.ksPassword);
+        } else {
+            this.sslFactory = null;
+        }
 	}
     	
     public void start() {
@@ -77,6 +87,11 @@ public abstract class Client extends Manager {
                      ChannelPipeline pipeline = ch.pipeline();
                      pipeline.addLast("coder", coderFactory.create(Client.this, handler, conf.msgPackageName));
                      pipeline.addLast("handler", handler);
+
+                    if (sslFactory != null) {
+                        // 如果使用ssl，则必须放到第一位
+                        pipeline.addFirst("sslHandler", new SslHandler(sslFactory.newEngine(ch,true)));
+                    }
                 }
         	};
         	
