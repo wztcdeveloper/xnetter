@@ -3,6 +3,7 @@ package xnetter.http.data.decode;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,14 +42,14 @@ public abstract class Decoder {
 		return this.next;
 	}
 
-	protected abstract void doDecode(FullHttpRequest request);
+	protected abstract void doDecode(FullHttpRequest request) throws IOException;
 
 	/**
 	 * 通过链式解析，能将所有请求参数和请求内存解析到Map
 	 * @param request
 	 * @return Map<String, Object>
 	 */
-	protected Map<String, Object> decodeRequest(FullHttpRequest request) {
+	protected Map<String, Object> decodeRequest(FullHttpRequest request) throws IOException {
 		this.doDecode(request);
 		
 		if (this.next != null) {
@@ -69,7 +70,7 @@ public abstract class Decoder {
 	 * @param request
 	 * @return 返回Map
 	 */
-	public static Map<String, Object> decode(FullHttpRequest request) {
+	public static Map<String, Object> decode(FullHttpRequest request) throws IOException {
 		Decoder decoder = getDecoder(request);
 		return decoder != null ? decoder.decodeRequest(request) : new HashMap<>();
 	}

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.multipart.FileUpload;
 import xnetter.http.annotation.Action;
 import xnetter.http.annotation.ParamVariable;
 import xnetter.http.annotation.PathVariable;
@@ -28,7 +30,13 @@ public class UserAction {
 	public String logout() {
 		return "{result:success}";
 	}
-	
+
+	@Request(name="/file/upload", type=Request.Type.POST)
+	public String upload(FullHttpRequest request, FileUpload file2,
+						 FileUpload file3, List<FileUpload> files) {
+		return "{result:success}";
+	}
+
 	@Request(name="/ids/bean", type=Request.Type.POST)
 	public String bean(UserBean user) {
 		return "{result:success}";

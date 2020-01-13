@@ -31,22 +31,15 @@ import xnetter.utils.DumpUtil;
  * @create 2019-11-05
  */
 
-public final class HttpHandler extends SimpleChannelInboundHandler<HttpObject> {
+public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	private static Logger logger = LoggerFactory.getLogger(HttpHandler.class);
 
 	private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     private static final String CONNECTION_CLOSE = "close";
 
-	 //  Disk if size exceed
-	private static final HttpDataFactory factory =
-			new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
-
     private final HttpConf conf;
 	private final HttpRouter router;
-
-	private boolean readChunks;
-	private HttpPostRequestDecoder decoder;
 
 	public HttpHandler(HttpConf conf, HttpRouter router) {
 		this.conf = conf;
@@ -59,26 +52,9 @@ public final class HttpHandler extends SimpleChannelInboundHandler<HttpObject> {
     }
 	
 	@Override
-	public void channelRead0(ChannelHandlerContext ctx, HttpObject request) throws Exception{
-		if (request instanceof FullHttpRequest) {
-			handlerHttpRequest(ctx, (FullHttpRequest)request);
-		} else if (request instanceof HttpContent) {
-			handleHttpContent(ctx, (HttpContent) request);
-		}
-	}
-		
-	@Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
-        ctx.close();
-    }
-
-    private void handlerHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request) {
+	public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception{
 		logger.debug("recv from {}: {}", ctx.channel().remoteAddress().toString(), request.uri());
 		logger.debug("recv content: \n{}", request.content().toString(StandardCharsets.UTF_8));
-
-		decoder = new HttpPostRequestDecoder(factory, request);
-		readChunks = HttpUtil.isTransferEncodingChunked(request);
 
 		try {
 			if ("websocket".equalsIgnoreCase(request.headers().get("Upgrade"))) {
@@ -90,24 +66,12 @@ public final class HttpHandler extends SimpleChannelInboundHandler<HttpObject> {
 			writeResponse(request, ResponseUtil.buildError(ex), ctx.channel(), true);
 		}
 	}
-
-	private void handleHttpContent(ChannelHandlerContext ctx, HttpContent request) {
-		if (decoder.isMultipart()) {
-			decoder.offer(request);
-		}
-
-		while (decoder.hasNext()) {
-			InterfaceHttpData data = decoder.next();
-			if (data != null) {
-				if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-					FileUpload file = (FileUpload) data;
-					if (file.isCompleted()) {
-						decoder.destroy();
-					}
-				}
-			}
-		}
-	}
+		
+	@Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
+    }
 
 	/**
 	 * 如果是HTTP请求，则开始分发给Action

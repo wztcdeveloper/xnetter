@@ -1,5 +1,7 @@
 package xnetter.http.core;
 
+import io.netty.handler.codec.http.multipart.DiskFileUpload;
+
 public final class HttpConf {
     public final int port;
     public final boolean sslEnabled;
@@ -18,5 +20,13 @@ public final class HttpConf {
         this.ksPath = ksPath;
         this.ksPassword = ksPassword;
         this.certPassword = certPassword;
+    }
+
+    /**
+     * 上传文件保存路径
+     * @param uploadDir
+     */
+    public void setUploadDir(String uploadDir) {
+        DiskFileUpload.baseDirectory = uploadDir;
     }
 }
