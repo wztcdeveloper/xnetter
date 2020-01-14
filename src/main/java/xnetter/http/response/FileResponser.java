@@ -85,16 +85,16 @@ public final class FileResponser extends Responser {
             @Override
             public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
                 if (total < 0) {
-                    logger.warn("file {} transfer progress: {}.", file.getName(), progress);
+                    logger.warn("download file progress: {}, {}.", file.getName(), progress);
                 } else {
-                    logger.debug("file {} transfer progress: {}/{}.", file.getName(), progress, total);
+                    logger.debug("download file progress: {}, {}/{}.", file.getName(), progress, total);
                 }
             }
 
             @Override
             public void operationComplete(ChannelProgressiveFuture future) {
                 if (future.isSuccess()) {
-                    logger.info("file {} transfer complete.", file.getName());
+                    logger.info("download file completed: {}", file.getName());
                 } else {
                     logger.error(String.format("file %s transfer exception.", file.getName()),
                             future.cause());

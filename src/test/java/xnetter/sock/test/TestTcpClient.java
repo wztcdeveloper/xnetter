@@ -63,7 +63,7 @@ public class TestTcpClient extends Client {
 	}
 	
 	public static void main(String[] args) {
-		String logFile = HttpServer.class.getResource("/log4j.properties").getPath();
+		String logFile = TestTcpClient.class.getResource("/log4j.properties").getPath();
 		PropertyConfigurator.configure(logFile);
 		ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 		 

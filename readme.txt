@@ -50,6 +50,9 @@ udp是无连接的，客户端发送数据总是向指定的IP和端口发送，
 处理数据。udp的处理器需要继承自UdpHandler，可以仿照ProtocolUdpHandler来写。
     注意：udp是无连接的，所以服务器发送数据只能原路返回。
 
+BUG LIST
+HTTPS时候上传文件和下载文件没有测试
+
 TODO LIST
 1 http参数校验
 2 扩展其他协议的支持

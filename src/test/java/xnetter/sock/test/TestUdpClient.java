@@ -79,7 +79,7 @@ public class TestUdpClient extends UdpClient {
 	}
 	
 	public static void main(String[] args) {
-		String logFile = HttpServer.class.getResource("/log4j.properties").getPath();
+		String logFile = TestUdpClient.class.getResource("/log4j.properties").getPath();
 		PropertyConfigurator.configure(logFile);
 		
 		ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);

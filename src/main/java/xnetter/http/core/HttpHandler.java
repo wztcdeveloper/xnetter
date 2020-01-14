@@ -1,9 +1,12 @@
 package xnetter.http.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import io.netty.handler.codec.http.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +57,12 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 			if ("websocket".equalsIgnoreCase(request.headers().get("Upgrade"))) {
 				handleWebsocket(ctx, request);
 			} else {
-				handleHttp(ctx, request);
+				String actionName = router.getActionName(request.uri());
+				if (conf.isDownloadDir(actionName)) {
+					handleDownload(ctx, request);
+				} else {
+					handleHttp(ctx, request);
+				}
 			}
 		} catch (Exception ex) {
 			new Responser(request, ctx).writeError(ex);
@@ -63,9 +71,9 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		
 	@Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
-        ctx.close();
-    }
+		cause.printStackTrace();
+		ctx.close();
+	}
 
 	/**
 	 * 如果是HTTP请求，则开始分发给Action
@@ -138,7 +146,25 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
         handshaker.handshake(ctx.channel(), request);
 	}
 
+	/**
+	 * 下载文件，不存在则抛出异常
+	 * @param ctx
+	 * @param request
+	 * @throws Exception
+	 */
+	private void handleDownload(ChannelHandlerContext ctx, FullHttpRequest request)
+			throws IOException {
+		String filePath = new File("").getCanonicalPath();
+		String fileName = String.format("%s\\%s", filePath, request.uri());
 
+		File file = new File(fileName);
+		if (file.exists() && file.isFile()) {
+			logger.info("download file starting: {}", fileName);
+			new FileResponser(request, ctx).write(file);
+		} else {
+			throw new FileNotFoundException(String.format("File not found: %s", fileName));
+		}
+	}
 	
 	private Request.Type getType(HttpMethod method) {
 		if (method.name().equals(HttpMethod.GET.name())) {

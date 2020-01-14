@@ -10,13 +10,13 @@ public final class Utils {
     }
 
     public static HttpConf makeConf(int port) {
-        String keyFile = Main.class.getResource("/netter.keystore").getPath();
+        String keyFile = Utils.class.getResource("/netter.keystore").getPath();
         return new HttpConf(port, true, keyFile,
                 "654321", "123456");
     }
 
     public  static void supportSsl(Manager.Conf conf) {
-        String keyFile = Main.class.getResource("/netter.keystore").getPath();
+        String keyFile = Utils.class.getResource("/netter.keystore").getPath();
         conf.supportSsl(keyFile, "654321", "123456");
     }
 }

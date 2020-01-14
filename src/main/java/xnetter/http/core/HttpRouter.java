@@ -137,26 +137,30 @@ public final class HttpRouter {
 		logger.info("===== regist action end =====");
 	}
 
-	public ActionHolder getAction(String url) {
+	public String getActionName(String url) {
 		int index = url.indexOf("?");
 		if (index > 0) {
 			url = url.substring(0, index);
 		}
-		
+
 		url = RequestUtil.correctPath(RequestUtil.currectSeparator(url));
 		index = url.indexOf(PATH_SEPARATOR);
 		if (index <= 0) {
 			throw new RuntimeException(String.format("request url is wrong. url=%s", url));
 		}
-		
-		String actionName = RequestUtil.correctPath(url.substring(0, index));
+
+		return RequestUtil.correctPath(url.substring(0, index));
+	}
+
+	public ActionHolder getAction(String url) {
+		String actionName = getActionName(url);
 		if (!actions.containsKey(actionName)) {
 			throw new RuntimeException(String.format("action doesn't exist for name: %s", actionName));
 		}
-		
+
 		return actions.get(actionName);
 	}
-	
+
 	public ActionContext newAction(String url, Request.Type type) {
 		return newAction(url, type, true);
 	}

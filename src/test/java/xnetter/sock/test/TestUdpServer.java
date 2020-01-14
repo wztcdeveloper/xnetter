@@ -71,7 +71,7 @@ public class TestUdpServer extends UdpServer {
 	}
 
 	public static void main(String[] args) {
-		String logFile = HttpServer.class.getResource("/log4j.properties").getPath();
+		String logFile = TestUdpServer.class.getResource("/log4j.properties").getPath();
 		PropertyConfigurator.configure(logFile);
 
     	Conf conf = new Conf("127.0.0.1", 1001, "xnetter.sock.test", "xnetter.sock.test");
