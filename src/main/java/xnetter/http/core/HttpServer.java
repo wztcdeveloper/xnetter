@@ -16,6 +16,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import xnetter.http.ssl.SslFactory;
 
 import java.io.IOException;
@@ -67,7 +68,7 @@ public final class HttpServer {
     	ServerBootstrap bootstrap = new ServerBootstrap();
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup work = new NioEventLoopGroup();
-        
+
     	ChannelInitializer<SocketChannel> initializer = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {

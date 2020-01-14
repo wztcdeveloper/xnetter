@@ -1,15 +1,12 @@
 package xnetter.http.core;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
@@ -18,8 +15,8 @@ import xnetter.http.annotation.Request;
 import xnetter.http.annotation.Response;
 import xnetter.http.core.HttpRouter.ActionContext;
 import xnetter.http.core.HttpRouter.ActionHolder;
-import xnetter.http.utils.HttpHeader;
-import xnetter.http.utils.ResponseUtil;
+import xnetter.http.response.FileResponser;
+import xnetter.http.response.Responser;
 import xnetter.http.data.decode.Decoder;
 import xnetter.http.data.encode.Encoder;
 import xnetter.http.wsock.WSockAction;
@@ -34,9 +31,6 @@ import xnetter.utils.DumpUtil;
 public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	private static Logger logger = LoggerFactory.getLogger(HttpHandler.class);
-
-	private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
-    private static final String CONNECTION_CLOSE = "close";
 
     private final HttpConf conf;
 	private final HttpRouter router;
@@ -63,7 +57,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 				handleHttp(ctx, request);
 			}
 		} catch (Exception ex) {
-			writeResponse(request, ResponseUtil.buildError(ex), ctx.channel(), true);
+			new Responser(request, ctx).writeError(ex);
 		}
 	}
 		
@@ -85,7 +79,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		ActionContext context = router.newAction(request.uri(), requestType);
 
 		if (context == null) {
-			writeResponse(request, ResponseUtil.buildNotFound(request.uri()), ctx.channel(), true);
+			new Responser(request, ctx).writeNotFound();
 			return;
 		}
 
@@ -95,8 +89,12 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		logger.debug(DumpUtil.dump("\t", params));
 		
 		Object result = context.execute(params);
-		Response response = context.path.getMethodAnn(Response.class);
-		writeResponse(request, ResponseUtil.build(result, response), ctx.channel(), false);
+		if (File.class.isAssignableFrom(result.getClass())) {
+			new FileResponser(request, ctx).write((File)result);
+		} else {
+			Response response = context.path.getMethodAnn(Response.class);
+			new Responser(request, ctx).write(result, response, false);
+		}
 	}
 
 	/**
@@ -140,29 +138,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
         handshaker.handshake(ctx.channel(), request);
 	}
 
-	private void writeResponse(HttpRequest request, FullHttpResponse response, Channel channel, boolean forceClose) {
-		boolean close = isClose(request);
-		if(!close && !forceClose){
-			response.headers().set(HttpHeader.CONTENT_LENGTH, response.content().readableBytes());
-		}
-		
-		logger.debug("send to {}: {}", channel.remoteAddress().toString(), 
-				response.content().toString(StandardCharsets.UTF_8));
-		
-		ChannelFuture future = channel.writeAndFlush(response);
-		if(close || forceClose){
-			future.addListener(ChannelFutureListener.CLOSE);
-		}
-	}
-	
-	private boolean isClose(HttpRequest request) {
-		if (request.headers().contains(HttpHeader.CONNECTION, CONNECTION_CLOSE, true) ||
-			(request.protocolVersion().equals(HttpVersion.HTTP_1_0) &&
-			!request.headers().contains(HttpHeader.CONNECTION, CONNECTION_KEEP_ALIVE, true))) {
-			return true;
-		}
-		return false;
-	}
+
 	
 	private Request.Type getType(HttpMethod method) {
 		if (method.name().equals(HttpMethod.GET.name())) {

@@ -1,4 +1,4 @@
-    xnetter是基于netty的网络架构，目的是简单易用。
+﻿    xnetter是基于netty的网络架构，目的是简单易用。
     用户只需要关心基础数据和业务逻辑，对网络通信的过程、网络数据的编解码、加解密、路由转发无
 需关心。目前实现了http/https、websocket/wss、tcp和udp网络过程的封装。其中tcp支持SSL，tcp和udp
 支持其他加解密， 只不过目前加密算法只有RC4，后面再扩展其他的。
@@ -10,7 +10,7 @@
 
 2 http
     通过HttpServer启动http服务器，该服务会自动扫描Action路径下的所有类进行注册。下面是http
-请求的整个流程。已经支持https，通过HttpConf去配置。
+请求的整个流程。已经支持https，通过HttpConf去配置。支持文件上传、文件下载。
     HttpClient(WEB) -> HttpHandler -> HttpRouter -> Decode -> Encode -> Action
     HttpServer接收到客户端的连接，都会启动一个新的HttpHandler。当HttpHandler接收到客户端
 数据请求，会根据请求路径找HttpRouter查询相应的Action。调用Decoder对Request请求参数和请求内
@@ -52,5 +52,5 @@ udp是无连接的，客户端发送数据总是向指定的IP和端口发送，
 
 TODO LIST
 1 http参数校验
-2 http支持文件上传、文件下载
-3 考虑其他协议的实现
+2 扩展其他协议的支持
+3 扩展TCP/UDP的加密算法

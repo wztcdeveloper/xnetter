@@ -27,10 +27,10 @@ public class Main {
     		String logFile = HttpServer.class.getResource("/log4j.properties").getFile();
     		PropertyConfigurator.configure(logFile);
     		
-    		//new HttpServer(5555, "xnetter.http.test").start();
-			HttpConf conf = Utils.makeConf(5555);
-			conf.setUploadDir("D:\\work\\svnrepos\\wztc_work\\Code\\");
-			new HttpServer(conf, "xnetter.http.test").start();
+    		new HttpServer(5555, "xnetter.http.test").start();
+			//HttpConf conf = Utils.makeConf(5555);
+			//conf.setUploadDir("D:\\work\\svnrepos\\wztc_work\\Code\\");
+			//new HttpServer(conf, "xnetter.http.test").start();
 
     		while (true) {
     			Thread.sleep(100);

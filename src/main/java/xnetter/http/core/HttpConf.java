@@ -9,6 +9,8 @@ public final class HttpConf {
     public final String ksPassword;
     public final String certPassword;
 
+    public String downloadDir;
+
     public HttpConf(int port) {
         this(port, false, "", "", "");
     }
@@ -20,6 +22,14 @@ public final class HttpConf {
         this.ksPath = ksPath;
         this.ksPassword = ksPassword;
         this.certPassword = certPassword;
+    }
+
+    /**
+     * 下载文件的路径
+     * @param downloadDir
+     */
+    public void setDownloadDir(String downloadDir) {
+        this.downloadDir = downloadDir;
     }
 
     /**

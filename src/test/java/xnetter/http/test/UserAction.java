@@ -1,5 +1,6 @@
 package xnetter.http.test;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,11 @@ public class UserAction {
 	public String upload(FullHttpRequest request, FileUpload file2,
 						 FileUpload file3, List<FileUpload> files) {
 		return "{result:success}";
+	}
+
+	@Request(name="/file/download", type=Request.Type.GET)
+	public File download(FullHttpRequest request) {
+		return new File("D:\\work\\svnrepos\\wztc_work\\上课.txt");
 	}
 
 	@Request(name="/ids/bean", type=Request.Type.POST)
