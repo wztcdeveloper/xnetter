@@ -16,6 +16,7 @@ public final class HttpConf {
     public final String ksPassword;
     public final String certPassword;
 
+    public List<String> displayDirs;
     public List<String> downloadDirs;
 
     public HttpConf(int port) {
@@ -29,6 +30,7 @@ public final class HttpConf {
         this.ksPath = ksPath;
         this.ksPassword = ksPassword;
         this.certPassword = certPassword;
+        this.displayDirs = new ArrayList<>();
         this.downloadDirs = new ArrayList<>();
     }
 
@@ -55,6 +57,16 @@ public final class HttpConf {
     }
 
     /**
+     * 供显示的资源的路径，只能是相对路径
+     * 相对路径是相对项目根目录的路径
+     * @param displayDirs
+     */
+    public void addDisplayDir(String... displayDirs) {
+        Collections.addAll(this.displayDirs, displayDirs);
+    }
+
+
+    /**
      * 下载文件的路径，只能是相对路径
      * 相对路径是相对项目根目录的路径
      * @param downloadDirs
@@ -63,7 +75,12 @@ public final class HttpConf {
         Collections.addAll(this.downloadDirs, downloadDirs);
     }
 
-    public boolean isDownloadDir(String path) {
-        return downloadDirs.contains(path);
+    /**
+     * 是否为静态资源路径，包括displayDirs和downloadDirs
+     * @param path
+     * @return
+     */
+    public boolean isStaticDir(String path) {
+        return downloadDirs.contains(path) || displayDirs.contains(path);
     }
 }

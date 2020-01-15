@@ -10,7 +10,7 @@
 
 2 http
     通过HttpServer启动http服务器，该服务会自动扫描Action路径下的所有类进行注册。下面是http
-请求的整个流程。已经支持https，通过HttpConf去配置。支持文件上传、文件下载。
+请求的整个流程。已经支持https，通过HttpConf去配置。支持文件上传、文件下载、文件直接展示。
     HttpClient(WEB) -> HttpHandler -> HttpRouter -> Decode -> Encode -> Action
     HttpServer接收到客户端的连接，都会启动一个新的HttpHandler。当HttpHandler接收到客户端
 数据请求，会根据请求路径找HttpRouter查询相应的Action。调用Decoder对Request请求参数和请求内
@@ -20,6 +20,7 @@
     基础类型 -> 基础类型
     数组    -> 数组/List/Set
     JSON    -> Map/Bean
+    文件上传 -> FileUpload
 
 3 websocket
     通过HttpServer启动websocket服务器，该服务会自动扫描Action路径下的所有类进行注册，只不过

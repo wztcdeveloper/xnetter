@@ -58,8 +58,8 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 				handleWebsocket(ctx, request);
 			} else {
 				String actionName = router.getActionName(request.uri());
-				if (conf.isDownloadDir(actionName)) {
-					handleDownload(ctx, request);
+				if (conf.isStaticDir(actionName)) {
+					handleDownload(ctx, request, actionName);
 				} else {
 					handleHttp(ctx, request);
 				}
@@ -152,7 +152,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	 * @param request
 	 * @throws Exception
 	 */
-	private void handleDownload(ChannelHandlerContext ctx, FullHttpRequest request)
+	private void handleDownload(ChannelHandlerContext ctx, FullHttpRequest request, String rootPath)
 			throws IOException {
 		String filePath = new File("").getCanonicalPath();
 		String fileName = String.format("%s\\%s", filePath, request.uri());
@@ -160,7 +160,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		File file = new File(fileName);
 		if (file.exists() && file.isFile()) {
 			logger.info("download file starting: {}", fileName);
-			new FileResponser(request, ctx).write(file);
+			new FileResponser(request, ctx, conf, rootPath).write(file);
 		} else {
 			throw new FileNotFoundException(String.format("File not found: %s", fileName));
 		}

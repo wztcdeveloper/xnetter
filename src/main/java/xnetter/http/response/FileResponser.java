@@ -5,6 +5,8 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import org.apache.commons.lang3.StringUtils;
+import xnetter.http.core.HttpConf;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.*;
@@ -17,8 +19,17 @@ import java.net.URLEncoder;
  * @create 2019-01-15
  */
 public final class FileResponser extends Responser {
+    private final String rootPath;
+    private final HttpConf conf;
+
     public FileResponser(FullHttpRequest request, ChannelHandlerContext ctx) {
+        this(request, ctx, null, null);
+    }
+    
+    public FileResponser(FullHttpRequest request, ChannelHandlerContext ctx, HttpConf conf, String rootPath) {
         super(request, ctx);
+        this.conf = conf;
+        this.rootPath = rootPath;
     }
 
     public void write(File file) {
@@ -40,7 +51,7 @@ public final class FileResponser extends Responser {
         ChannelHandler cwHandler = new ChunkedWriteHandler();
 
         // 2 移除之前的编码器
-        // 该编码器可以支持FileRegion
+        // 该编码器可以支持FileRegion、ChunkedFile
        cp.replace(cp.get("encoder"), "encoder", cwHandler);
 
         // 3 把文件传输给前端
@@ -50,22 +61,32 @@ public final class FileResponser extends Responser {
         // Encoder is not a @Sharable handler, so can't be added or removed multiple times
         cp.replace(cwHandler, "encoder", new HttpResponseEncoder());
     }
+
     private void writeResponse(File file) throws UnsupportedEncodingException {
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                 HttpResponseStatus.OK);
-        // 指定文件名编码格式，防止前端文件名显示乱码
-        String attachment = String.format("attachment; filename*=UTF-8''%s",
-                URLEncoder.encode(file.getName(), "UTF-8"));
 
         //String contentType = "application/octet-stream;charset=UTF-8";
         String contentType = new MimetypesFileTypeMap().getContentType(file.getPath());
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, file.length());
-        response.headers().add(HttpHeaderNames.CONTENT_DISPOSITION, attachment);
+        response.headers().add(HttpHeaderNames.CONTENT_DISPOSITION, getDisposition(file));
         if (!isClose(request)) {
             response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }
         ctx.write(response);
+    }
+
+    private String getDisposition(File file) throws UnsupportedEncodingException {
+        String type = "attachment";
+        if (conf != null && StringUtils.isNotEmpty(rootPath)
+                && conf.displayDirs.contains(rootPath)) {
+            type = "inline";
+        }
+
+        // 指定文件名编码格式，防止前端文件名显示乱码
+        return String.format("%s; filename*=UTF-8''%s",
+                type, URLEncoder.encode(file.getName(), "UTF-8"));
     }
 
     private void writeFile(File file, RandomAccessFile raf) throws IOException {

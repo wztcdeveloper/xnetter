@@ -33,6 +33,7 @@ public class Main {
 			HttpConf conf = Utils.makeConf(5555);
 			conf.setUploadDir("D:\\work\\svnrepos\\wztc_work\\Code\\");
 			conf.addDownloadDir("download");
+			conf.addDisplayDir("resources");
 			new HttpServer(conf, "xnetter.http.test").start();
 
     		while (true) {
