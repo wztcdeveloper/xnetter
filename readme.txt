@@ -23,7 +23,8 @@
     文件上传 -> FileUpload
 
     http还提供过滤器HttpFilter来过滤请求，返回的Result为空则继续后面的请求，否则根据Result
-直接返回给客户端。HttpFilter的使用可以是参数校验、权限验证等。
+直接返回给客户端。HttpFilter的使用可以是参数校验、权限验证等。其中参数校验提供了HttpValidFilter
+实现，大家可以参考来实现。这里是基于hibernate-validator实现的，大家可以替换成其他的。
 
 3 websocket
     通过HttpServer启动websocket服务器，该服务会自动扫描Action路径下的所有类进行注册，只不过
@@ -58,6 +59,5 @@ BUG LIST
 ...
 
 TODO LIST
-1 http参数校验
-2 扩展其他协议的支持
-3 扩展TCP/UDP的加密算法
+1 扩展其他协议的支持
+2 扩展TCP/UDP的加密算法

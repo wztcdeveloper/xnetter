@@ -64,7 +64,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 				if (conf.isStaticDir(actionName)) {
 					handleDownload(ctx, request, actionName);
 				} else {
-					handleCommonHttp(ctx, request);
+					handleHttp(ctx, request);
 				}
 			}
 		} catch (Exception ex) {
@@ -84,7 +84,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	 * @param request
 	 * @throws Exception
 	 */
-	private void handleCommonHttp(ChannelHandlerContext ctx, FullHttpRequest request)
+	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest request)
 			throws InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
 		Request.Type requestType = getType(request.method());
 		ActionContext context = router.newAction(request.uri(), requestType);
@@ -100,7 +100,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		logger.debug(DumpUtil.dump("\t", params));
 
 		//
-		if (onHttpRequest(ctx, request, context.path.method, params)) {
+		if (onHttpRequest(ctx, request, context.path.action, context.path.method, params)) {
 			return;
 		}
 
@@ -219,9 +219,9 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	}
 
 	private boolean onHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request,
-		Method method, Object[] params) {
+		Object action, Method method, Object[] params) {
 		for (HttpFilter filter : server.getFilters()) {
-			HttpFilter.Result result = filter.onRequest(request, method, params);
+			HttpFilter.Result result = filter.onRequest(request, action, method, params);
 			if (result != null && result.content != null) {
 				new Responser(request, ctx).write(result.content, result.respType, false);
 				return false;

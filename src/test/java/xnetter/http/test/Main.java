@@ -34,7 +34,10 @@ public class Main {
 			conf.setUploadDir("D:\\work\\svnrepos\\wztc_work\\Code\\");
 			conf.addDownloadDir("download");
 			conf.addDisplayDir("resources");
-			new HttpServer(conf, "xnetter.http.test").start();
+
+			HttpServer server = new HttpServer(conf, "xnetter.http.test");
+			server.registFilter(new HttpValidFilter());
+			server.start();
 
     		while (true) {
     			Thread.sleep(100);

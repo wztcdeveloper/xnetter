@@ -1,9 +1,8 @@
 package xnetter.http.core;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import xnetter.http.annotation.Response;
-import xnetter.http.response.Responser;
+import xnetter.http.core.HttpRouter.ActionContext;
 
 import java.lang.reflect.Method;
 
@@ -17,13 +16,9 @@ public abstract class HttpFilter {
     /**
      * 过滤器返回的结果
      */
-    public class Result {
-        public Response.Type respType;
-        public Object content;
-
-        public Result() {
-            this(null);
-        }
+    public final class Result {
+        public final Response.Type respType;
+        public final Object content;
 
         public Result(Object content) {
             this(Response.Type.JSON, content);
@@ -47,10 +42,11 @@ public abstract class HttpFilter {
      * 返回为非空，才继续后面的请求
      * 否则直接将结果返回给客户端
      * @param request
+     * @param action 响应的对象
      * @param method 响应的函数
-     * @param params 函数调用参数值
+     * @param params 函数传递的参数值
      * @return
      */
     public abstract Result onRequest(FullHttpRequest request,
-                                      Method method, Object[] params);
+                                     Object action, Method method, Object[] params);
 }

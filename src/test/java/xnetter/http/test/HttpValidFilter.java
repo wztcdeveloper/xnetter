@@ -3,6 +3,7 @@ package xnetter.http.test;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.executable.ExecutableValidator;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import org.hibernate.validator.HibernateValidator;
@@ -11,29 +12,15 @@ import xnetter.http.core.HttpFilter;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+/**
+ * 使用hibernate的注解来验证参数
+ * @author majikang
+ * @create 2020-01-15
+ */
 public final class HttpValidFilter extends HttpFilter {
 
-    /**
-     * 使用hibernate的注解来进行验证
-     */
     private Validator validator = Validation.byProvider(HibernateValidator.class)
             .configure().failFast(true).buildValidatorFactory().getValidator();
-
-    /**
-     * 功能描述: <br>
-     * 〈注解验证参数〉
-     *
-     * @param obj
-     * @see [相关类/方法](可选)
-     * @since [产品/模块版本](可选)
-     */
-    public <T> void validate(T obj) {
-        Set<ConstraintViolation<T>> constraintViolations = validator.validate(obj);
-        // 抛出检验异常
-        if (constraintViolations.size() > 0) {
-            throw new RuntimeException(String.format("参数校验失败:%s", constraintViolations.iterator().next().getMessage()));
-        }
-    }
 
     @Override
     public Result onDownload(FullHttpRequest request) {
@@ -41,7 +28,14 @@ public final class HttpValidFilter extends HttpFilter {
     }
 
     @Override
-    public Result onRequest(FullHttpRequest request, Method method, Object[] params) {
+    public Result onRequest(FullHttpRequest request, Object action, Method method, Object[] params) {
+        ExecutableValidator validatorParam = validator.forExecutables();
+        Set<ConstraintViolation<Object>> results = validatorParam.validateParameters(
+                action, method, params);
+        if (!results.isEmpty()) {
+            return new Result(results.iterator().next().getMessage());
+        }
+
         return null;
     }
 }
