@@ -26,6 +26,11 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * 启动HTTP客户端
+ * @author majikang
+ * @create 2020-01-16
+ */
 public final class HttpClient {
     private static Logger logger = LoggerFactory.getLogger(HttpClient.class);
     private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
