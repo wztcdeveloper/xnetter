@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 /**
  * RC4/ARC4/ARCFour加解密算法
  * @author majikang
- * @create 2019-01-10
+ * @create 2020-01-10
  */
 public final class RC4Security extends Security {
 	private final static int PERM_LENGTH = 256;

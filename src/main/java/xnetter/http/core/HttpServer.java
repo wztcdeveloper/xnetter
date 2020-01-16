@@ -16,10 +16,11 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import xnetter.http.ssl.SslFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 启动HTTP服务器
@@ -28,10 +29,11 @@ import java.io.IOException;
 public final class HttpServer {
 	private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
-	private final HttpConf conf;
-	private final HttpRouter router;
+	public final HttpConf conf;
+    public final HttpRouter router;
 	private ServerChannel serverChannel;
     private SslFactory sslFactory;
+    private List<HttpFilter> filters;
 
     /**
      * 监听端口port, 并且自动扫描和注册actionPackages下的所有Action
@@ -57,6 +59,7 @@ public final class HttpServer {
     public HttpServer(final HttpConf conf, final HttpRouter router) {
         this.conf = conf;
         this.router = router;
+        this.filters = new ArrayList<>();
 
         if (this.conf.sslEnabled) {
             this.sslFactory = new SslFactory(conf.ksPath,
@@ -78,7 +81,7 @@ public final class HttpServer {
                   ph.addLast("decoder", new HttpRequestDecoder());
                   ph.addLast("aggregator", new HttpObjectAggregator(10*1024*1024));
                   // 所有的HTTP请求，都由HttpHandler来处理
-                  ph.addLast("dispatcher",  new HttpHandler(conf, router));
+                  ph.addLast("dispatcher",  new HttpHandler(HttpServer.this));
 
                   if (sslFactory != null) {
                       // 如果使用https，则必须放到第一位
@@ -101,5 +104,23 @@ public final class HttpServer {
             serverChannel.close();
             serverChannel = null;
     	}
+    }
+
+    public List<HttpFilter> getFilters() {
+	    return this.filters;
+    }
+
+    public void registFilter(HttpFilter... filters) {
+        for (HttpFilter filter : filters) {
+            if (!this.filters.contains(filter)) {
+                this.filters.add(filter);
+            }
+        }
+    }
+
+    public void unregistFilter(HttpFilter... filters) {
+        for (HttpFilter filter : filters) {
+            this.filters.remove(filter);
+        }
     }
 }

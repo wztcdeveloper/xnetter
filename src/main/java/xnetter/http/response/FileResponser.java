@@ -16,7 +16,7 @@ import java.net.URLEncoder;
  * 将文件返回给客户端，默认用FileRegion实现Zero-Copy
  * SSL用ChunkedFile来实现分块发送
  * @author majikang
- * @create 2019-01-15
+ * @create 2020-01-15
  */
 public final class FileResponser extends Responser {
     private final String rootPath;

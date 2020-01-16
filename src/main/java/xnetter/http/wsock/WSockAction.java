@@ -7,8 +7,8 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 /**
  * 处理Websocket消息的Action，需要继承WSockAction
- *  @author majikang
- *  @create 2019-11-05
+ * @author majikang
+ * @create 2019-11-05
  */
 public interface WSockAction {
 

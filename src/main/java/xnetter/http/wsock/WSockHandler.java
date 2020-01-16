@@ -21,8 +21,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 /**
  * 负责接收WebSocket消息，并转发给Action处理
  * 每个Handler需要有一个Action来与之对应
- *  @author majikang
- *  @create 2019-11-05
+ * @author majikang
+ * @create 2019-11-05
  */
 public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 

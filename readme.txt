@@ -22,6 +22,9 @@
     JSON    -> Map/Bean
     文件上传 -> FileUpload
 
+    http还提供过滤器HttpFilter来过滤请求，返回的Result为空则继续后面的请求，否则根据Result
+直接返回给客户端。HttpFilter的使用可以是参数校验、权限验证等。
+
 3 websocket
     通过HttpServer启动websocket服务器，该服务会自动扫描Action路径下的所有类进行注册，只不过
 这里的Action需要实现接口WSockAction。websocket初始化时，由HttpClient发起Get请求，其中Headers

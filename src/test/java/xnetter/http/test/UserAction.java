@@ -7,6 +7,7 @@ import java.util.Set;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.multipart.FileUpload;
+import org.hibernate.validator.constraints.NotEmpty;
 import xnetter.http.annotation.Action;
 import xnetter.http.annotation.ParamVariable;
 import xnetter.http.annotation.PathVariable;
@@ -17,8 +18,10 @@ import xnetter.http.annotation.Response;
 public class UserAction {
 	
 	@Request(name="/login/{type:finger|account}", type=Request.Type.POST)
-	public String login(@PathVariable(name="type") String type, String account, 
-			@ParamVariable(name="passwords") String password) {
+	public String login(@PathVariable(name="type") String type,
+			@NotEmpty(message="账号不能为空") String account,
+			@ParamVariable(name="passwords")
+			@NotEmpty(message="密码不能为空") String password) {
 		return "{result:success}";
 	}
 	

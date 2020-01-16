@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * 根据Action的注解，返回不同的内容给客户端
  * 默认是JSON格式
  * @author majikang
- * @create 2019-01-15
+ * @create 2020-01-15
  */
 public class Responser {
     protected static Logger logger = LoggerFactory.getLogger(Responser.class);
@@ -41,17 +41,26 @@ public class Responser {
      * @param forceClose
      */
     public void write(Object result, Response response, boolean forceClose) {
-        String text = TType.valueOf(String.class, result);
-        if (response == null) {
-            writeJSON(forceClose, text);
-            return;
+        if (response != null) {
+            write(result, response.value(), forceClose);
+        } else {
+            writeJSON(forceClose, TType.valueOf(String.class, result));
         }
+    }
 
-        if (response.value() == Response.Type.TEXT) {
+    /**
+     * 根据返回的注解类型输出不同的内容
+     * @param result
+     * @param respType
+     * @param forceClose
+     */
+    public void write(Object result, Response.Type respType, boolean forceClose) {
+        String text = TType.valueOf(String.class, result);
+        if (respType == Response.Type.TEXT) {
             writeText(forceClose, text);
-        } else if (response.value() == Response.Type.XML) {
+        } else if (respType== Response.Type.XML) {
             writeXML(forceClose, text);
-        } else if (response.value() == Response.Type.HTML) {
+        } else if (respType == Response.Type.HTML) {
             writeHTML(forceClose, text);
         } else {
             writeJSON(forceClose, text);

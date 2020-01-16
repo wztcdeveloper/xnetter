@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 加解密算法
  * @author majikang
- * @create 2019-01-10
+ * @create 2020-01-10
  */
 public abstract class Security implements Cloneable {
 	private static final HashMap<String, Security> map = new HashMap<String, Security>() {{

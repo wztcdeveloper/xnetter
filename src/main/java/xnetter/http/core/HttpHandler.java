@@ -3,10 +3,11 @@ package xnetter.http.core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 
 import io.netty.handler.codec.http.*;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +36,14 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 
 	private static Logger logger = LoggerFactory.getLogger(HttpHandler.class);
 
-    private final HttpConf conf;
+	private final HttpServer server;
 	private final HttpRouter router;
+	private final HttpConf conf;
 
-	public HttpHandler(HttpConf conf, HttpRouter router) {
-		this.conf = conf;
-		this.router = router;
+	public HttpHandler(HttpServer server) {
+		this.server = server;
+		this.router = server.router;
+		this.conf = server.conf;
 	}
 
 	@Override
@@ -61,14 +64,14 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 				if (conf.isStaticDir(actionName)) {
 					handleDownload(ctx, request, actionName);
 				} else {
-					handleHttp(ctx, request);
+					handleCommonHttp(ctx, request);
 				}
 			}
 		} catch (Exception ex) {
 			new Responser(request, ctx).writeError(ex);
 		}
 	}
-		
+
 	@Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		cause.printStackTrace();
@@ -76,13 +79,13 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	}
 
 	/**
-	 * 如果是HTTP请求，则开始分发给Action
+	 * 如果是普通的HTTP请求，则开始分发给Action
 	 * @param ctx
 	 * @param request
 	 * @throws Exception
 	 */
-	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest request)
-			throws Exception ,OutOfMemoryError{
+	private void handleCommonHttp(ChannelHandlerContext ctx, FullHttpRequest request)
+			throws InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
 		Request.Type requestType = getType(request.method());
 		ActionContext context = router.newAction(request.uri(), requestType);
 
@@ -95,7 +98,12 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 			.encode(context.requestName, Decoder.decode(request));
 		logger.debug("params(count={})", params.length);
 		logger.debug(DumpUtil.dump("\t", params));
-		
+
+		//
+		if (onHttpRequest(ctx, request, context.path.method, params)) {
+			return;
+		}
+
 		Object result = context.execute(params);
 		if (File.class.isAssignableFrom(result.getClass())) {
 			new FileResponser(request, ctx).write((File)result);
@@ -154,6 +162,9 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	 */
 	private void handleDownload(ChannelHandlerContext ctx, FullHttpRequest request, String rootPath)
 			throws IOException {
+		if (onDownload(ctx, request)) {
+			return;
+		}
 		String filePath = new File("").getCanonicalPath();
 		String fileName = String.format("%s\\%s", filePath, request.uri());
 
@@ -194,5 +205,28 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		} else {
 			return String.format("ws://0.0.0.0:%d/%s", conf.port, holder.name);
 		}
+	}
+
+	private boolean onDownload(ChannelHandlerContext ctx, FullHttpRequest request) {
+		for (HttpFilter filter : server.getFilters()) {
+			HttpFilter.Result result = filter.onDownload(request);
+			if (result != null && result.content != null) {
+				new Responser(request, ctx).write(result.content, result.respType, false);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean onHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request,
+		Method method, Object[] params) {
+		for (HttpFilter filter : server.getFilters()) {
+			HttpFilter.Result result = filter.onRequest(request, method, params);
+			if (result != null && result.content != null) {
+				new Responser(request, ctx).write(result.content, result.respType, false);
+				return false;
+			}
+		}
+		return true;
 	}
 }
