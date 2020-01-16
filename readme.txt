@@ -8,7 +8,7 @@
 用以快速开发高性能、高可用性的网络服务器和客户端程序。也就是说netty是一个基于nio的编程框
 架，使用netty可以快速的开发出一个网络应用。
 
-2 http
+2 http(server)
     通过HttpServer启动http服务器，该服务会自动扫描Action路径下的所有类进行注册。下面是http
 请求的整个流程。已经支持https，通过HttpConf去配置。支持文件上传、文件下载、文件直接展示。
     HttpClient(WEB) -> HttpHandler -> HttpRouter -> Decode -> Encode -> Action
@@ -26,7 +26,11 @@
 直接返回给客户端。HttpFilter的使用可以是参数校验、权限验证等。其中参数校验提供了HttpValidFilter
 实现，大家可以参考来实现。这里是基于hibernate-validator实现的，大家可以替换成其他的。
 
-3 websocket
+3 http(client)
+    通过HttpClient向服务器请求数据。做了优化处理，如果已经连接则直接请求，否则先连接。
+    需要继承Handler来接收返回的数据，连接超时毫秒数CONNECT_TIMEOUT_MILLIS为默认的30000毫秒。
+
+4 websocket
     通过HttpServer启动websocket服务器，该服务会自动扫描Action路径下的所有类进行注册，只不过
 这里的Action需要实现接口WSockAction。websocket初始化时，由HttpClient发起Get请求，其中Headers
 里面包含“Upgrade”=“websocket”的键值对。这时服务器需要启动握手流程，并且把从网络处理里面把
@@ -34,7 +38,7 @@ HttpHandler移除，加入新的WSockHandler。以后数据通信就由WSockHand
     已经支持wss，通过HttpConf去配置。客户端通过wss访问时，不支持IP和端口，应该通过域名的形式来
 访问。
 
-4 tcp
+5 tcp
     通过继承Server来启动服务器，继承Client来启动客户端。这里需要涉及到的配置参数由Manager.Conf
 完成。每一个连接，都会实例化一个Handler来接收并处理数据。下面是tcp的接收和发送流程。
     Recv: Client -> Decode -> Handler -> Dispatcher -> Action
@@ -48,7 +52,7 @@ HttpHandler移除，加入新的WSockHandler。以后数据通信就由WSockHand
 有一个remoteId来做标识，所以建立连接的时候，需要主动调用MultiClient的registClient方法去设置
 该Client的remoteId。
 
-5 udp
+6 udp
     upd的实现流程跟tcp很类似。只不过服务器需要继承自UdpServer，客户端需要继承自UdpClient。
 udp是无连接的，客户端发送数据总是向指定的IP和端口发送，服务器启动单线程监听端口并接收数据。
 为了提高服务器处理性能，用RecvHandler来接收数据，并从对象池handlers里面获取一个UdpHandler来

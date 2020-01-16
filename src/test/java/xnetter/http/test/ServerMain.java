@@ -21,11 +21,11 @@ import xnetter.utils.ReflectUtil;
  * Hello world!
  *
  */
-public class Main {
+public class ServerMain {
 
     public static void main(String[] args) {
     	try {
-    		String logFile = Main.class.getResource("/log4j.properties").getFile();
+    		String logFile = ServerMain.class.getResource("/log4j.properties").getFile();
     		PropertyConfigurator.configure(logFile);
     		
     		//new HttpServer(5555, "xnetter.http.test").start();

@@ -10,6 +10,7 @@ import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xnetter.http.ssl.AuthFactory;
 import xnetter.http.ssl.SslFactory;
 import xnetter.utils.TimeUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -53,7 +54,7 @@ public abstract class Server extends Manager {
     	
         this.sessionId = new AtomicLong();
         if (this.conf.sslEnabled) {
-            this.sslFactory = new SslFactory(conf.ksPath, conf.ksPassword, conf.certPassword);
+            this.sslFactory = new AuthFactory(conf.ksPath, conf.ksPassword, conf.certPassword);
         } else {
             this.sslFactory = null;
         }

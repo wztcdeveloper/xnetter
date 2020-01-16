@@ -16,6 +16,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import xnetter.http.ssl.AuthFactory;
 import xnetter.http.ssl.SslFactory;
 
 import java.io.IOException;
@@ -62,16 +63,12 @@ public final class HttpServer {
         this.filters = new ArrayList<>();
 
         if (this.conf.sslEnabled) {
-            this.sslFactory = new SslFactory(conf.ksPath,
+            this.sslFactory = new AuthFactory(conf.ksPath,
                     conf.ksPassword, conf.certPassword);
         }
     }
 
     public void start() throws InterruptedException {
-    	ServerBootstrap bootstrap = new ServerBootstrap();
-        EventLoopGroup boss = new NioEventLoopGroup();
-        EventLoopGroup work = new NioEventLoopGroup();
-
     	ChannelInitializer<SocketChannel> initializer = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
@@ -89,7 +86,10 @@ public final class HttpServer {
                   }
             }
     	};
-    	
+
+        ServerBootstrap bootstrap = new ServerBootstrap();
+        EventLoopGroup boss = new NioEventLoopGroup();
+        EventLoopGroup work = new NioEventLoopGroup();
         bootstrap.group(boss, work)
         	.channel(NioServerSocketChannel.class)
         	.childHandler(initializer);
