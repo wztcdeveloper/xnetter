@@ -39,7 +39,8 @@ public abstract class UdpClient extends Manager {
 	
 	private final Coder coder;
 	private final AtomicLong sessionId;
-	
+	private final InetSocketAddress address;
+
 	private Channel channel;
 	
     protected UdpClient(Conf conf) {
@@ -52,6 +53,7 @@ public abstract class UdpClient extends Manager {
     	super(conf, dispatcher, coderFactory, handlerFactory);
     	
     	this.sessionId = new AtomicLong();
+    	this.address = new InetSocketAddress(conf.ip, conf.port);
     	coder = coderFactory.create(this, null, conf.msgPackageName);
     }
 	
@@ -108,8 +110,7 @@ public abstract class UdpClient extends Manager {
 	public boolean send(ByteBuf byteBuf) throws InterruptedException {
 		if (channel !=  null) {
 			channel.writeAndFlush(new DatagramPacket(
-					Unpooled.copiedBuffer(byteBuf),
-	                new InetSocketAddress(conf.ip, conf.port))).sync();
+					Unpooled.copiedBuffer(byteBuf), address)).sync();
 			return true;
 		} 
 		return false;

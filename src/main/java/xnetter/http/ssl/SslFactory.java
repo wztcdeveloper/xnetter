@@ -16,4 +16,5 @@ public abstract class SslFactory {
     }
 
     public abstract SSLEngine newEngine(SocketChannel ch, boolean client);
+
 }

@@ -27,8 +27,7 @@ public abstract class TType {
 	 * @return
 	 */
 	public abstract Object valueOf(Object value);
-	
-	
+
 	private enum Holder {
 		INSTANCE;
 		

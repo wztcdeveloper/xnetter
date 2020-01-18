@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import io.netty.handler.codec.http.multipart.FileUpload;
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
