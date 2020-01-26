@@ -77,9 +77,10 @@ public abstract class Server extends Manager {
                  cc.setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(65535));
                  
                  Handler handler = handlerFactory.create(sessionId.incrementAndGet(), Server.this);
-                 
+                 Coder coder = coderFactory.create(Server.this, handler, conf.msgPackageName);
+
                  ChannelPipeline pipeline = ch.pipeline();
-                 pipeline.addLast("coder", coderFactory.create(Server.this, handler, conf.msgPackageName));
+                 pipeline.addLast("coder", coder);
                  pipeline.addLast("handler", handler);
 
                 if (sslFactory != null) {

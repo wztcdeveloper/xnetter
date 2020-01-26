@@ -24,11 +24,12 @@ public final class HttpValidFilter extends HttpFilter {
 
     @Override
     public Result onDownload(FullHttpRequest request) {
-        return null;
+        return EMPTY_RESULT;
     }
 
     @Override
-    public Result onRequest(FullHttpRequest request, Object action, Method method, Object[] params) {
+    public Result onRequest(FullHttpRequest request, Object action,
+                            Method method, Object[] params) {
         ExecutableValidator validatorParam = validator.forExecutables();
         Set<ConstraintViolation<Object>> results = validatorParam.validateParameters(
                 action, method, params);
@@ -36,6 +37,6 @@ public final class HttpValidFilter extends HttpFilter {
             return new Result(results.iterator().next().getMessage());
         }
 
-        return null;
+        return EMPTY_RESULT;
     }
 }

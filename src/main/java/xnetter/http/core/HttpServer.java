@@ -47,15 +47,14 @@ public final class HttpServer {
             IllegalAccessException, IOException {
 	     this(port, new HttpRouter(actionPackages));
 	}
-
-    public HttpServer(final int port, final HttpRouter router) {
-        this(new HttpConf(port), router);
-    }
-
     public HttpServer(final HttpConf conf, final String... actionPackages)
             throws ClassNotFoundException, InstantiationException,
             IllegalAccessException, IOException {
         this(conf, new HttpRouter(actionPackages));
+    }
+
+    public HttpServer(final int port, final HttpRouter router) {
+        this(new HttpConf(port), router);
     }
 
     public HttpServer(final HttpConf conf, final HttpRouter router) {

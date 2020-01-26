@@ -13,6 +13,9 @@ import java.lang.reflect.Method;
  */
 
 public abstract class HttpFilter {
+    // 返回空结果
+    protected static final Result EMPTY_RESULT = null;
+
     /**
      * 过滤器返回的结果
      */

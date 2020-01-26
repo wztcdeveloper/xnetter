@@ -210,7 +210,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 	private boolean onDownload(ChannelHandlerContext ctx, FullHttpRequest request) {
 		for (HttpFilter filter : server.getFilters()) {
 			HttpFilter.Result result = filter.onDownload(request);
-			if (result != null && result.content != null) {
+			if (result != HttpFilter.EMPTY_RESULT && result.content != null) {
 				new Responser(request, ctx).write(result.content, result.respType, false);
 				return false;
 			}
@@ -222,7 +222,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		Object action, Method method, Object[] params) {
 		for (HttpFilter filter : server.getFilters()) {
 			HttpFilter.Result result = filter.onRequest(request, action, method, params);
-			if (result != null && result.content != null) {
+			if (result != HttpFilter.EMPTY_RESULT && result.content != null) {
 				new Responser(request, ctx).write(result.content, result.respType, false);
 				return false;
 			}

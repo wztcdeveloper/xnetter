@@ -66,8 +66,14 @@ public class UserAction {
 		return "{result:success}";
 	}
 	
-	@Request(name="/ids/map", type=Request.Type.POST)
-	public String mapIds(Map<String, Integer> ids, String name, @ParamVariable(name="xx") String name2) {
+	@Request(name="/list/all/{unikey}", type={Request.Type.GET, Request.Type.POST})
+	public String listAll(@PathVariable(name="unikey") String unikey,
+						 Integer[] arrayIds,
+						 List<Integer> listIds,
+						 Set<Integer> setIds,
+						 Map<String, Integer> mapIds,
+						 UserBean user, String name,
+						 @ParamVariable(name="xx") String name2) {
 		return "{result:success}";
 	}
 }

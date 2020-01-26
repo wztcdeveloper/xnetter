@@ -6,7 +6,7 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 /**
- * 处理Websocket消息的Action，需要继承WSockAction
+ * 处理Websocket消息的Action，需要实现WSockAction
  * @author majikang
  * @create 2019-11-05
  */

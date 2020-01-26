@@ -12,9 +12,9 @@ import java.util.List;
 public final class HttpConf {
     public final int port;
     public final boolean sslEnabled;
-    public final String ksPath;
-    public final String ksPassword;
-    public final String certPassword;
+    public final String ksPath;         // 密钥库路径
+    public final String ksPassword;     // 密钥库密码
+    public final String certPassword;   // 证书密码
 
     public List<String> displayDirs;
     public List<String> downloadDirs;

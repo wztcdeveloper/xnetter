@@ -1,7 +1,6 @@
 package xnetter;
 
 import xnetter.http.core.HttpConf;
-import xnetter.http.test.Main;
 import xnetter.sock.core.Manager;
 
 public final class Utils {

@@ -63,7 +63,9 @@ public class TestTcpServer extends Server {
 		String logFile = TestTcpServer.class.getResource("/log4j.properties").getPath();
 		PropertyConfigurator.configure(logFile);
 		
-    	Conf conf = new Conf("0.0.0.0", 1001, "xnetter.sock.test", "xnetter.sock.test");
+    	Conf conf = new Conf("0.0.0.0", 1001,
+				"xnetter.sock.test",
+				"xnetter.sock.test");
 		//conf.outSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
 		//conf.inSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
 		Utils.supportSsl(conf);

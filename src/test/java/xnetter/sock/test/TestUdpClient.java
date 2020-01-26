@@ -92,26 +92,25 @@ public class TestUdpClient extends UdpClient {
 	}
 	
 	public static void startInThread() {
-		Conf conf = new Conf("127.0.0.1", 1001, "xnetter.sock.test", "xnetter.sock.test");
-		conf.inSecurity = Security.create("RC4Security", "h3ss0ylltrmbwgmt6blk5pwbfm7my5");
-		conf.outSecurity = Security.create("RC4Security", "n9i5wpxar2t5g79bza99uu3a8kpnv3");
+		Conf conf = new Conf("127.0.0.1", 1001,
+				"xnetter.sock.test",
+				"xnetter.sock.test");
+		conf.inSecurity = Security.create("RC4Security",
+				"h3ss0ylltrmbwgmt6blk5pwbfm7my5");
+		conf.outSecurity = Security.create("RC4Security",
+				"n9i5wpxar2t5g79bza99uu3a8kpnv3");
 
 		TestUdpClient client = new TestUdpClient(conf);
-    	
     	Dispatcher<Protocol> d = ((Dispatcher<Protocol>)client.dispatcher);
 		d.regist(SChallenge.class, (msg) -> {
-
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
             client.send(new CChallenge(msg.index + 1));
 		});
-		
-		
-		
+
 		try {
 			client.start();
 		} catch (Exception ex) {
