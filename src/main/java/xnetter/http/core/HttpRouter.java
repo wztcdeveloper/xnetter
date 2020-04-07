@@ -115,7 +115,12 @@ public final class HttpRouter {
 
 		public Object execute(Object[] params)
 				throws InvocationTargetException, IllegalAccessException {
-			return path.method.invoke(path.action, params);
+			return execute(path.action, params);
+		}
+
+		public Object execute(Object action, Object[] params)
+				throws InvocationTargetException, IllegalAccessException {
+			return path.method.invoke(action, params);
 		}
 	}
 	

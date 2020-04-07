@@ -12,10 +12,10 @@ import xnetter.http.wsock.WSockAction;
 import xnetter.http.wsock.WSockHandler;
 
 @Action(name="/live")
-public class UserSockAction implements WSockAction {
+public class UserSockAction extends WSockAction {
 
 	@Request(name="/init", type=Request.Type.GET)
-	public void init(String token) {
+	public void init(String token, String key) {
 		System.out.println(token);
 	}
 	

@@ -135,14 +135,16 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
         } 
         
     	WSockAction action = (WSockAction)holder.action.getClass().newInstance();
-    	Request.Type requestType = getType(request.method());
+		action.setHandler(new WSockHandler(action, handshaker));
+
+        Request.Type requestType = getType(request.method());
 		ActionContext context = router.newAction(request.uri(), requestType, false);
-		if (context != null && context.path != null) {
+		if (context.path != null) {
 			Object[] params = new Encoder(request, context.path)
 				.encode(context.requestName, Decoder.decode(request));
     		logger.debug("params(count={})", params.length);
     		logger.debug(DumpUtil.dump("\t", params));
-			context.execute(params);
+			context.execute(action, params);
 		}
 
 		/**
@@ -150,7 +152,7 @@ public final class HttpHandler extends SimpleChannelInboundHandler<FullHttpReque
 		 * 所以移除HttpHandler，加入WSockHandler处理
 		 */
     	ctx.pipeline().remove(this.getClass());
-    	ctx.pipeline().addLast(new WSockHandler(action, handshaker));
+    	ctx.pipeline().addLast(action.getHandler());
         handshaker.handshake(ctx.channel(), request);
 	}
 
