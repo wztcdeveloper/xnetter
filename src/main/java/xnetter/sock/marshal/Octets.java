@@ -154,6 +154,25 @@ public class Octets {
         return x;
     }
 
+    public void writeFixInt(int x) {
+        sureWrite(4);
+        data[endPos + 3] = (byte) x;
+        data[endPos + 2] = (byte) (x >> 8);
+        data[endPos + 1] = (byte) (x >> 16);
+        data[endPos] = (byte) (x >> 24);
+        endPos += 4;
+    }
+
+    public int readFixInt() {
+        sureRead(4);
+        int x = ((data[beginPos] & 0xff) << 24)
+                | ((data[beginPos + 1] & 0xff) << 16)
+                | ((data[beginPos + 2] & 0xff) << 8)
+                | (data[beginPos + 3] & 0xff);
+        beginPos += 4;
+        return x;
+    }
+
     public int readCompactInt() {
         sureRead(1);
         int h = data[beginPos] & 0xff;

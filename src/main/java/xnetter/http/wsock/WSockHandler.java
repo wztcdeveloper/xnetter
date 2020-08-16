@@ -57,7 +57,7 @@ public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 	
 	public void sendMessage(String content) {
 		if (ctx != null && ctx.channel().isActive()) {
-			logger.info("read content from {}: {}", getRemoteAddr(ctx), content);
+			logger.info("write content to {}: {}", getRemoteAddr(ctx), content);
 			ctx.channel().write(new TextWebSocketFrame(content));
 		}
 	}
@@ -65,7 +65,7 @@ public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 	public void sendMessage(byte[] datas) {
 		if (ctx != null && ctx.channel().isActive()) {
         	ByteBuf buf = Unpooled.copiedBuffer(datas);
-        	logger.info("read content from {}: {}", getRemoteAddr(ctx),
+        	logger.info("write content to {}: {}", getRemoteAddr(ctx),
         			buf.toString(StandardCharsets.UTF_8));
         	
 			ctx.channel().write(new BinaryWebSocketFrame(buf));
