@@ -1,0 +1,69 @@
+[DEBUG][2020-02-24 12:53:23.231][main][io.netty.util.internal.logging.InternalLoggerFactory]Using SLF4J as the default logging framework
+[DEBUG][2020-02-24 12:53:23.258][main][io.netty.util.internal.PlatformDependent]-Dio.netty.noUnsafe: false
+[DEBUG][2020-02-24 12:53:23.260][main][io.netty.util.internal.PlatformDependent0]java.nio.Buffer.address: available
+[DEBUG][2020-02-24 12:53:23.261][main][io.netty.util.internal.PlatformDependent0]sun.misc.Unsafe.theUnsafe: available
+[DEBUG][2020-02-24 12:53:23.261][main][io.netty.util.internal.PlatformDependent0]sun.misc.Unsafe.copyMemory: available
+[DEBUG][2020-02-24 12:53:23.262][main][io.netty.util.internal.PlatformDependent0]direct buffer constructor: available
+[DEBUG][2020-02-24 12:53:23.263][main][io.netty.util.internal.PlatformDependent0]java.nio.Bits.unaligned: available, true
+[DEBUG][2020-02-24 12:53:23.263][main][io.netty.util.internal.PlatformDependent0]java.nio.DirectByteBuffer.<init>(long, int): available
+[DEBUG][2020-02-24 12:53:23.264][main][io.netty.util.internal.Cleaner0]java.nio.ByteBuffer.cleaner(): available
+[DEBUG][2020-02-24 12:53:23.265][main][io.netty.util.internal.PlatformDependent]Platform: Windows
+[DEBUG][2020-02-24 12:53:23.265][main][io.netty.util.internal.PlatformDependent]Java version: 8
+[DEBUG][2020-02-24 12:53:23.265][main][io.netty.util.internal.PlatformDependent]sun.misc.Unsafe: available
+[DEBUG][2020-02-24 12:53:23.266][main][io.netty.util.internal.PlatformDependent]-Dio.netty.noJavassist: false
+[DEBUG][2020-02-24 12:53:23.267][main][io.netty.util.internal.PlatformDependent]Javassist: unavailable
+[DEBUG][2020-02-24 12:53:23.267][main][io.netty.util.internal.PlatformDependent]You don't have Javassist in your class path or you don't have enough permission to load dynamically generated classes.  Please check the configuration for better performance.
+[DEBUG][2020-02-24 12:53:23.267][main][io.netty.util.internal.PlatformDependent]-Dio.netty.tmpdir: C:\Users\mjk\AppData\Local\Temp (java.io.tmpdir)
+[DEBUG][2020-02-24 12:53:23.267][main][io.netty.util.internal.PlatformDependent]-Dio.netty.bitMode: 32 (sun.arch.data.model)
+[DEBUG][2020-02-24 12:53:23.267][main][io.netty.util.internal.PlatformDependent]-Dio.netty.noPreferDirect: false
+[DEBUG][2020-02-24 12:53:23.268][main][io.netty.util.internal.PlatformDependent]io.netty.maxDirectMemory: 259522560 bytes
+[DEBUG][2020-02-24 12:53:23.279][main][io.netty.channel.MultithreadEventLoopGroup]-Dio.netty.eventLoopThreads: 16
+[DEBUG][2020-02-24 12:53:23.305][main][io.netty.channel.nio.NioEventLoop]-Dio.netty.noKeySetOptimization: false
+[DEBUG][2020-02-24 12:53:23.305][main][io.netty.channel.nio.NioEventLoop]-Dio.netty.selectorAutoRebuildThreshold: 512
+[DEBUG][2020-02-24 12:53:23.308][main][io.netty.util.internal.PlatformDependent]org.jctools-core.MpscChunkedArrayQueue: available
+[DEBUG][2020-02-24 12:53:23.365][main][io.netty.channel.DefaultChannelId]-Dio.netty.processId: 8268 (auto-detected)
+[DEBUG][2020-02-24 12:53:23.368][main][io.netty.util.NetUtil]-Djava.net.preferIPv4Stack: false
+[DEBUG][2020-02-24 12:53:23.368][main][io.netty.util.NetUtil]-Djava.net.preferIPv6Addresses: false
+[DEBUG][2020-02-24 12:53:23.567][main][io.netty.util.NetUtil]Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+[DEBUG][2020-02-24 12:53:23.568][main][io.netty.util.NetUtil]\proc\sys\net\core\somaxconn: 200 (non-existent)
+[DEBUG][2020-02-24 12:53:23.774][main][io.netty.channel.DefaultChannelId]-Dio.netty.machineId: e8:2a:ea:ff:fe:e3:2c:e5 (auto-detected)
+[DEBUG][2020-02-24 12:53:23.778][main][io.netty.util.internal.ThreadLocalRandom]-Dio.netty.initialSeedUniquifier: 0x8b71899e51b645cf
+[DEBUG][2020-02-24 12:53:23.793][main][io.netty.util.ResourceLeakDetector]-Dio.netty.leakDetection.level: simple
+[DEBUG][2020-02-24 12:53:23.793][main][io.netty.util.ResourceLeakDetector]-Dio.netty.leakDetection.maxRecords: 4
+[DEBUG][2020-02-24 12:53:23.823][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.numHeapArenas: 2
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.numDirectArenas: 2
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.pageSize: 8192
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.maxOrder: 11
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.chunkSize: 16777216
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.tinyCacheSize: 512
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.smallCacheSize: 256
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.normalCacheSize: 64
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.maxCachedBufferCapacity: 32768
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.cacheTrimInterval: 8192
+[DEBUG][2020-02-24 12:53:23.824][main][io.netty.buffer.PooledByteBufAllocator]-Dio.netty.allocator.useCacheForAllThreads: true
+[DEBUG][2020-02-24 12:53:23.836][main][io.netty.buffer.ByteBufUtil]-Dio.netty.allocator.type: pooled
+[DEBUG][2020-02-24 12:53:23.836][main][io.netty.buffer.ByteBufUtil]-Dio.netty.threadLocalDirectBufferSize: 65536
+[DEBUG][2020-02-24 12:53:23.836][main][io.netty.buffer.ByteBufUtil]-Dio.netty.maxThreadLocalCharBufferSize: 16384
+[DEBUG][2020-02-24 12:53:23.873][nioEventLoopGroup-2-1][io.netty.buffer.AbstractByteBuf]-Dio.netty.buffer.bytebuf.checkAccessible: true
+[DEBUG][2020-02-24 12:53:23.875][nioEventLoopGroup-2-1][io.netty.util.ResourceLeakDetectorFactory]Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@6a1f91
+[INFO][2020-02-24 12:53:24.090][main][xnetter.http.core.HttpClient]Netty-http client is connecting to restapi.amap.com:443
+[DEBUG][2020-02-24 12:53:24.095][main][io.netty.util.Recycler]-Dio.netty.recycler.maxCapacityPerThread: 32768
+[DEBUG][2020-02-24 12:53:24.096][main][io.netty.util.Recycler]-Dio.netty.recycler.maxSharedCapacityFactor: 2
+[DEBUG][2020-02-24 12:53:24.096][main][io.netty.util.Recycler]-Dio.netty.recycler.linkCapacity: 16
+[DEBUG][2020-02-24 12:53:24.096][main][io.netty.util.Recycler]-Dio.netty.recycler.ratio: 8
+[DEBUG][2020-02-24 12:53:24.177][nioEventLoopGroup-2-1][io.netty.handler.ssl.SslHandler][id: 0xfbc76521, L:/192.168.1.109:59631 - R:restapi.amap.com/203.119.244.158:443] HANDSHAKEN: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+[DEBUG][2020-02-24 12:53:24.180][nioEventLoopGroup-2-1][xnetter.http.core.HttpClient]request success, url=https://restapi.amap.com/v3/weather/weatherInfo?output=json&city=350212&extensions=base&key=1efb9a5b0110cd95a313903090fed3a2
+[DEBUG][2020-02-24 12:53:24.223][nioEventLoopGroup-2-1][xnetter.http.core.HttpClient]recv from restapi.amap.com/203.119.244.158:443
+[DEBUG][2020-02-24 12:53:24.228][nioEventLoopGroup-2-1][xnetter.http.core.HttpClient]recv content: HttpObjectAggregator$AggregatedFullHttpResponse(decodeResult: success, version: HTTP/1.1, content: CompositeByteBuf(ridx: 0, widx: 256, cap: 256, components=1))
+HTTP/1.1 200 OK
+Server: Tengine
+Date: Mon, 24 Feb 2020 04:53:08 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 256
+Connection: close
+X-Powered-By: ring/1.0.0
+gsid: 011175097163158251998800100021655720856
+sc: 0.015
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: *
+Access-Control-Allow-Headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,key,x-biz,x-info,platinfo,encr,enginever,gzipped,poiid
