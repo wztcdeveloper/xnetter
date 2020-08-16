@@ -57,18 +57,18 @@ public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 	
 	public void sendMessage(String content) {
 		if (ctx != null && ctx.channel().isActive()) {
-			logger.info("read content from {}: {}", getRemoteAddr(ctx), content);
-			ctx.channel().write(new TextWebSocketFrame(content));
+			logger.info("write content to {}: {}", getRemoteAddr(ctx), content);
+			ctx.channel().writeAndFlush(new TextWebSocketFrame(content));
 		}
 	}
 	
 	public void sendMessage(byte[] datas) {
 		if (ctx != null && ctx.channel().isActive()) {
         	ByteBuf buf = Unpooled.copiedBuffer(datas);
-        	logger.info("read content from {}: {}", getRemoteAddr(ctx),
+        	logger.info("write content to {}: {}", getRemoteAddr(ctx),
         			buf.toString(StandardCharsets.UTF_8));
         	
-			ctx.channel().write(new BinaryWebSocketFrame(buf));
+			ctx.channel().writeAndFlush(new BinaryWebSocketFrame(buf));
 		}
 	}
 	
@@ -106,7 +106,7 @@ public class WSockHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 		} else if (frame instanceof PingWebSocketFrame) {
 			// 收到ping消息
 			action.onRecv(this, (PingWebSocketFrame)frame);
-			ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
+			ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content().retain()));
 		} else if (frame instanceof TextWebSocketFrame) {
 			action.onRecv(this, (TextWebSocketFrame)frame);
         } else if (frame instanceof BinaryWebSocketFrame) {
