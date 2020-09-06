@@ -76,13 +76,12 @@ public class ProtocolCoder extends Coder {
 	public void unregist(Protocol p) {
 		this.protocols.remove(p.getTypeId());
 	}
-	
-    private static Octets getAndClear() {
+
+    protected Octets getAndClear() {
         Octets bs = localOss.get();
         bs.clear();
         return bs;
     }
-
     /**
      * 将msg序列化到字节流ByteBuf里面，并发送
      * @param msg
@@ -183,7 +182,7 @@ public class ProtocolCoder extends Coder {
         }
     }
     
-	private String getRemoteAddress(Channel channel) {
+	protected String getRemoteAddress(Channel channel) {
 		if (channel != null) {
 			InetSocketAddress isa = (InetSocketAddress) channel.remoteAddress();
 			if (isa != null) {
